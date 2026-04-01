@@ -1,0 +1,72 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Primary blue: #1F5F9B → oklch(0.44 0.12 245) */
+    --primary: 0.44 0.12 245;
+    --primary-foreground: 1 0 0;
+
+    /* CTA orange: #F47A1F → oklch(0.68 0.17 55) */
+    --accent: 0.68 0.17 55;
+    --accent-foreground: 1 0 0;
+
+    /* Page background: #F3F6F9 → oklch(0.96 0.01 240) */
+    --background: 0.96 0.01 240;
+    --foreground: 0.14 0.02 240;
+
+    /* Cards: white */
+    --card: 1 0 0;
+    --card-foreground: 0.14 0.02 240;
+
+    --popover: 1 0 0;
+    --popover-foreground: 0.14 0.02 240;
+
+    --secondary: 0.94 0.02 240;
+    --secondary-foreground: 0.44 0.12 245;
+
+    --muted: 0.94 0.02 240;
+    --muted-foreground: 0.5 0.03 240;
+
+    --destructive: 0.58 0.22 25;
+    --destructive-foreground: 1 0 0;
+
+    --border: 0.91 0.02 240;
+    --input: 0.91 0.02 240;
+    --ring: 0.44 0.12 245;
+
+    --radius: 0.5rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: "Inter", sans-serif;
+  }
+}
+
+/* Custom utility classes */
+.welkee-header {
+  background-color: oklch(0.44 0.12 245);
+}
+
+.welkee-btn-orange {
+  background-color: oklch(0.68 0.17 55);
+  color: white;
+  transition: background-color 0.2s ease;
+}
+
+.welkee-btn-orange:hover {
+  background-color: oklch(0.62 0.18 55);
+}
+
+.welkee-hero {
+  background-color: oklch(0.3 0.1 245);
+}
