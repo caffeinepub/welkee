@@ -1,52 +1,45 @@
-# Welkee — Real Authentication & Owner Access
+# Welkee — Analytics & Lead Capture Upgrade
 
 ## Current State
-- `useEmailAuth.ts` provides localStorage-based email/password auth with `login`, `register`, `logout`.
-- `AuthModal.tsx` has a Login + Sign Up tabbed modal with proper error states.
-- `Header.tsx` has a three-dot menu with 5 items (Home, All Vehicles, EMI Calculator, About Us, Contact Us). No login button is present in the menu.
-- `Footer.tsx` has NO admin button — it was fully removed in Ghost Mode.
-- `App.tsx` has a `handleLogoSecretClick` Shift+triple-click shortcut that navigates to admin page.
-- `AdminPage.tsx` is PIN-protected at `20242025786786`.
-- Auth state is not lifted to `App.tsx` — it was used only inside wishlist-related components.
+- 20 real vehicles (10 bikes, 10 scooters) with authentic specs and images
+- "Buy Now" buttons open official brand URLs in new tab (no lead forms)
+- WhatsApp Share buttons on every card
+- Authentication via localStorage: email/password with super-admin detection (mohdali7z7z00@gmail.com)
+- Admin footer button only visible when isSuperAdmin === true
+- AdminPage (/admin) behind PIN 20242025786786, currently shows one table: Customer Leads (from old LeadsContext)
+- LeadsContext stores leads in localStorage with fields: name, phone, city, vehicleName, formType
+- No click tracking or vehicle popularity tracking exists
+- Registered users stored only in localStorage (welkee_users key)
+- Backend has submitLead(), registerUser(), getLeads() but frontend uses localStorage only
 
 ## Requested Changes (Diff)
 
 ### Add
-- **Login/Account button in Three-Dot Menu**: A new menu item at the top of the hamburger menu. Shows "Login / Account" when logged out; shows the user's email (truncated) + a Logout option when logged in.
-- **AuthContext**: Lift authentication state (user, isSuperAdmin, login, register, logout) to a React context so all components can access it.
-- **isSuperAdmin flag**: When the logged-in email is exactly `mohdali7z7z00@gmail.com` AND password used was `20242025786786`, set `isSuperAdmin = true` in context.
-- **Admin button in Footer**: Conditionally render an "Admin" button in the footer bottom bar only when `isSuperAdmin === true`. For all other users (including logged-out), the button is 100% invisible.
-- **Specific wrong-password error**: When a registered email exists but the password is wrong, return the error message "Wrong Password. Please try again." (distinct from account-not-found).
-- **Admin navigation from footer**: Clicking the Admin button navigates to the admin page.
+- **Click tracking context**: Track every "Buy Now" click and "WhatsApp Share" click per vehicle, stored in localStorage under `welkee_click_stats` as `{ [vehicleId]: { buyNow: number, whatsapp: number } }`
+- **Mobile Lead Capture popup**: When user clicks "Buy Now" (or "Get Deal"), intercept the click and show a modal: "Enter your Mobile Number to access the Official Brand Site & Special Offers." Fields: phone number (required). On submit: save phone + vehicleName + timestamp to leads storage, then proceed to open the brand URL in new tab
+- **CustomerLeads storage** in localStorage: `welkee_phone_leads` — array of `{ id, phone, vehicleName, clickType, timestamp }`
+- **Registered Users list in Admin**: Read from existing `welkee_users` localStorage key and display emails in a table
+- **Vehicle Popularity table in Admin**: Aggregated click totals per vehicle from `welkee_click_stats`
+- **Customer Leads table in Admin**: Phone numbers from `welkee_phone_leads`
 
 ### Modify
-- **useEmailAuth.ts**: Split the login error into two distinct cases — "email not found" vs "wrong password". Update the wrong-password message to "Wrong Password. Please try again."
-- **Header.tsx**: Add the Login/Account menu item to `menuItems`. Pass auth state as props or read from AuthContext. When logged in, show email + logout.
-- **Footer.tsx**: Accept `isSuperAdmin` and `onNavigate` props (already has `onNavigate`). Render a subtle "Admin" button in the bottom copyright bar, visible only when `isSuperAdmin === true`.
-- **App.tsx**: Remove the `handleLogoSecretClick` and Shift+triple-click admin shortcut entirely. Wrap `AppShell` with an `AuthProvider`. Pass auth state down to Header and Footer. Keep admin page accessible only via the footer Admin button (for super admin) or direct navigation triggered by super admin.
-- **AdminPage.tsx**: Keep PIN protection as-is. The super admin still must enter the PIN after navigating.
+- **VehicleCard.tsx**: 
+  - "Buy Now" button: intercept click → record click stat → show mobile number popup → on submit, save lead + open brand URL
+  - "WhatsApp Share" button: intercept click → record click stat → open WhatsApp URL
+- **AdminPage.tsx**: Rebuild into 3 clear tabs/tables:
+  1. "Registered Users" — emails from welkee_users localStorage
+  2. "Vehicle Popularity" — click totals per vehicle (Buy Now + WhatsApp), sorted by most clicks
+  3. "Customer Leads" — phone numbers from welkee_phone_leads
+- **AdminDashboard.tsx** (if used): Keep consistent with AdminPage changes (AdminPage is the primary; AdminDashboard.tsx may be unused/redundant — check App.tsx routing)
+- **Footer.tsx**: Admin button remains only visible to isSuperAdmin — no change needed, already correct
 
 ### Remove
-- The `handleLogoSecretClick` handler and the `adminClickCount`/`lastAdminClick` state in `App.tsx`.
-- The `onLogoSecretClick` prop from `Header.tsx`.
-- All Shift+click or tap shortcuts for admin access.
+- Old LeadsContext `addLead` being called on "Buy Now" (was already removed per previous build, confirm)
+- No removal of any vehicle data, images, specs, or layout
 
 ## Implementation Plan
-1. Create `src/frontend/src/context/AuthContext.tsx` — provides `user`, `isSuperAdmin`, `login`, `register`, `logout`.
-   - Internally uses the same localStorage pattern from `useEmailAuth.ts`.
-   - After successful login, check if email === `mohdali7z7z00@gmail.com` AND password === `20242025786786`, set `isSuperAdmin = true`.
-   - Persist `isSuperAdmin` in localStorage session alongside user so it survives refresh.
-   - Improve login error: if email found but password wrong → return "Wrong Password. Please try again."
-2. Update `App.tsx`:
-   - Wrap with `AuthProvider`.
-   - Remove all Shift+click admin shortcut code.
-   - Pass `isSuperAdmin` and `onNavigate` to `Footer`.
-   - Pass auth context to `Header`.
-3. Update `Header.tsx`:
-   - Import and use `AuthContext`.
-   - Add Login/Account item to menu: if not logged in → "Login / Account" button that opens AuthModal. If logged in → show truncated email + "Logout" button.
-   - Render `AuthModal` when `showAuth` state is true.
-4. Update `Footer.tsx`:
-   - Accept `isSuperAdmin: boolean` prop.
-   - In the bottom copyright bar, conditionally render an "Admin" button when `isSuperAdmin === true`.
-5. Delete `useEmailAuth.ts` (or keep as unused) — auth is now in AuthContext.
+1. Add `welkee_click_stats` helpers and `welkee_phone_leads` helpers to a new utils file `clickStats.ts`
+2. Create `MobileLeadPopup.tsx` — modal that collects phone number, calls back with phone then opens URL
+3. Update `VehicleCard.tsx`: intercept Buy Now click (record stat, show popup); intercept WhatsApp click (record stat only)
+4. Rebuild `AdminPage.tsx` with 3-table layout: Registered Users / Vehicle Popularity / Customer Leads, all from localStorage
+5. Keep PIN gate as-is (20242025786786), keep isSuperAdmin footer gate as-is
