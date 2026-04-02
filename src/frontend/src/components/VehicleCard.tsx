@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useCityContext } from "../context/CityContext";
 import type { Vehicle } from "../data/vehicleData";
-import { recordClick } from "../utils/clickStats";
 import { MobileLeadPopup } from "./MobileLeadPopup";
 
 interface VehicleCardProps {
@@ -24,12 +23,10 @@ export function VehicleCard({ vehicle, onViewDetail }: VehicleCardProps) {
   );
 
   const handleBuyNow = () => {
-    recordClick(vehicle.id, "buyNow");
     setShowLeadPopup(true);
   };
 
   const handleWhatsAppClick = () => {
-    recordClick(vehicle.id, "whatsapp");
     setShowWhatsAppPopup(true);
   };
 

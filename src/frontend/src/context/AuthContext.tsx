@@ -1,4 +1,11 @@
-import { createContext, useCallback, useContext, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 export interface AuthUser {
   id: number;
@@ -27,6 +34,8 @@ const SUPER_ADMIN_KEY = "welkee_is_super_admin";
 const OWNER_EMAIL = "mohdali7z7z00@gmail.com";
 const OWNER_PASSWORD = "20242025786786";
 
+const INACTIVITY_TIMEOUT_MS = 1800000; // 30 minutes
+
 function getStoredUsers(): StoredUser[] {
   try {
     const raw = localStorage.getItem(USERS_KEY);
@@ -45,7 +54,7 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = sessionStorage.getItem(STORAGE_KEY);
       return stored ? (JSON.parse(stored) as AuthUser) : null;
     } catch {
       return null;
@@ -53,8 +62,55 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   });
 
   const [isSuperAdmin, setIsSuperAdmin] = useState<boolean>(() => {
-    return localStorage.getItem(SUPER_ADMIN_KEY) === "true";
+    return sessionStorage.getItem(SUPER_ADMIN_KEY) === "true";
   });
+
+  const inactivityTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const logout = useCallback(() => {
+    sessionStorage.removeItem(STORAGE_KEY);
+    sessionStorage.setItem(SUPER_ADMIN_KEY, "false");
+    setUser(null);
+    setIsSuperAdmin(false);
+  }, []);
+
+  // 30-minute inactivity auto-logout
+  useEffect(() => {
+    if (!user) return;
+
+    const resetTimer = () => {
+      if (inactivityTimerRef.current) {
+        clearTimeout(inactivityTimerRef.current);
+      }
+      inactivityTimerRef.current = setTimeout(() => {
+        logout();
+      }, INACTIVITY_TIMEOUT_MS);
+    };
+
+    const events = [
+      "mousemove",
+      "keydown",
+      "click",
+      "touchstart",
+      "scroll",
+    ] as const;
+
+    for (const evt of events) {
+      window.addEventListener(evt, resetTimer, { passive: true });
+    }
+
+    // Start the initial timer
+    resetTimer();
+
+    return () => {
+      for (const evt of events) {
+        window.removeEventListener(evt, resetTimer);
+      }
+      if (inactivityTimerRef.current) {
+        clearTimeout(inactivityTimerRef.current);
+      }
+    };
+  }, [user, logout]);
 
   const login = useCallback(
     async (email: string, password: string): Promise<string | null> => {
@@ -66,8 +122,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         password === OWNER_PASSWORD
       ) {
         const ownerUser: AuthUser = { id: 0, email: OWNER_EMAIL };
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(ownerUser));
-        localStorage.setItem(SUPER_ADMIN_KEY, "true");
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(ownerUser));
+        sessionStorage.setItem(SUPER_ADMIN_KEY, "true");
         setUser(ownerUser);
         setIsSuperAdmin(true);
         return null;
@@ -86,8 +142,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const loggedIn: AuthUser = { id: found.id, email: found.email };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(loggedIn));
-      localStorage.setItem(SUPER_ADMIN_KEY, "false");
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(loggedIn));
+      sessionStorage.setItem(SUPER_ADMIN_KEY, "false");
       setUser(loggedIn);
       setIsSuperAdmin(false);
       return null;
@@ -117,21 +173,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       saveStoredUsers(users);
 
       const loggedIn: AuthUser = { id: newUser.id, email: newUser.email };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(loggedIn));
-      localStorage.setItem(SUPER_ADMIN_KEY, "false");
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(loggedIn));
+      sessionStorage.setItem(SUPER_ADMIN_KEY, "false");
       setUser(loggedIn);
       setIsSuperAdmin(false);
       return null;
     },
     [],
   );
-
-  const logout = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.setItem(SUPER_ADMIN_KEY, "false");
-    setUser(null);
-    setIsSuperAdmin(false);
-  }, []);
 
   return (
     <AuthContext.Provider

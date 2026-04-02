@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Vehicle } from "../data/vehicleData";
 import { EMIWidget } from "./EMIWidget";
+import { MobileLeadPopup } from "./MobileLeadPopup";
 
 interface VehicleDetailModalProps {
   vehicle: Vehicle | null;
@@ -12,6 +13,8 @@ export function VehicleDetailModal({
   onClose,
 }: VehicleDetailModalProps) {
   const [imgError, setImgError] = useState(false);
+  const [showLeadPopup, setShowLeadPopup] = useState(false);
+  const [showWhatsAppPopup, setShowWhatsAppPopup] = useState(false);
 
   if (!vehicle) return null;
 
@@ -132,16 +135,23 @@ export function VehicleDetailModal({
             />
 
             {/* CTA buttons */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <a
-                href={vehicle.buyUrl}
-                target="_blank"
-                rel="noopener noreferrer"
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <button
+                type="button"
+                onClick={() => setShowLeadPopup(true)}
                 className="flex items-center justify-center bg-[#FF8225] hover:bg-[#e06010] text-white font-bold py-3 rounded-xl transition-colors text-sm"
                 data-ocid="vehicle_detail.primary_button"
               >
                 Buy Now on Official Site
-              </a>
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowWhatsAppPopup(true)}
+                className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition-colors text-sm"
+                data-ocid="vehicle_detail.whatsapp_button"
+              >
+                WhatsApp Share
+              </button>
               <button
                 type="button"
                 onClick={onClose}
@@ -154,6 +164,24 @@ export function VehicleDetailModal({
           </div>
         </div>
       </div>
+
+      {showLeadPopup && (
+        <MobileLeadPopup
+          vehicleName={vehicle.name}
+          vehicleId={vehicle.id}
+          brandUrl={vehicle.buyUrl}
+          onClose={() => setShowLeadPopup(false)}
+        />
+      )}
+      {showWhatsAppPopup && (
+        <MobileLeadPopup
+          vehicleName={vehicle.name}
+          vehicleId={vehicle.id}
+          brandUrl=""
+          whatsappUrl={`https://wa.me/?text=${encodeURIComponent(`Check out ${vehicle.brand} ${vehicle.name} on WELKEE! https://welkee.icp0.io`)}`}
+          onClose={() => setShowWhatsAppPopup(false)}
+        />
+      )}
     </>
   );
 }
