@@ -9,20 +9,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { KeyRound, RefreshCw, Trash2, Users } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { type Lead, getLeads } from "../utils/leadsStorage";
+import { KeyRound, RefreshCw, Users } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-const ADMIN_PIN = "7860";
+const ADMIN_PIN = "20242025786786";
 
-function formatTimestamp(ts: number): string {
-  return new Date(ts).toLocaleString();
+interface StoredUser {
+  id: number;
+  email: string;
+  password: string;
+  signupDate?: string;
 }
 
-function formatFormType(t: string): string {
-  if (t === "test-ride") return "Test Ride";
-  if (t === "offers") return "Get Offers";
-  return t.charAt(0).toUpperCase() + t.slice(1);
+interface PhoneLead {
+  id: string;
+  phone: string;
+  vehicleName: string;
+  vehicleId: string;
+  timestamp: number;
 }
 
 function PinGate({ onUnlock }: { onUnlock: () => void }) {
@@ -70,7 +74,7 @@ function PinGate({ onUnlock }: { onUnlock: () => void }) {
             ref={inputRef}
             type="password"
             inputMode="numeric"
-            maxLength={6}
+            maxLength={14}
             placeholder="Enter PIN"
             value={pin}
             onChange={(e) => {
@@ -112,21 +116,35 @@ function PinGate({ onUnlock }: { onUnlock: () => void }) {
 
 export function AdminDashboard() {
   const [unlocked, setUnlocked] = useState(false);
-  const [leads, setLeads] = useState<Lead[]>([]);
+  const [users, setUsers] = useState<StoredUser[]>([]);
+  const [phoneLeads, setPhoneLeads] = useState<PhoneLead[]>([]);
+
+  const loadData = useCallback(() => {
+    try {
+      const rawUsers = localStorage.getItem("welkee_users");
+      setUsers(rawUsers ? (JSON.parse(rawUsers) as StoredUser[]) : []);
+    } catch {
+      setUsers([]);
+    }
+    try {
+      const rawLeads = localStorage.getItem("welkee_phone_leads");
+      setPhoneLeads(rawLeads ? (JSON.parse(rawLeads) as PhoneLead[]) : []);
+    } catch {
+      setPhoneLeads([]);
+    }
+  }, []);
 
   useEffect(() => {
     if (unlocked) {
-      setLeads(getLeads());
+      loadData();
     }
-  }, [unlocked]);
-
-  function refreshLeads() {
-    setLeads(getLeads());
-  }
+  }, [unlocked, loadData]);
 
   if (!unlocked) {
     return <PinGate onUnlock={() => setUnlocked(true)} />;
   }
+
+  const sortedLeads = [...phoneLeads].reverse();
 
   return (
     <div className="min-h-screen bg-gray-50" data-ocid="admin.page">
@@ -150,12 +168,12 @@ export function AdminDashboard() {
               data-ocid="admin.panel"
             >
               <Users size={14} className="mr-1.5" />
-              {leads.length} Leads
+              {phoneLeads.length} Leads
             </Badge>
             <Button
               variant="outline"
               size="sm"
-              onClick={refreshLeads}
+              onClick={loadData}
               className="border-white text-white hover:bg-white hover:text-blue-900 transition-colors"
               data-ocid="admin.button"
             >
@@ -167,119 +185,137 @@ export function AdminDashboard() {
       </header>
 
       {/* Main content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Leads Dashboard</h1>
-          <p className="text-gray-500 mt-1 text-sm">
-            All enquiries submitted via Get Offers and Book a Test Ride forms.
-          </p>
-        </div>
-
-        {leads.length === 0 ? (
-          <div
-            className="flex flex-col items-center justify-center py-24 text-gray-400"
-            data-ocid="admin.empty_state"
-          >
-            <Users size={48} className="mb-4 text-gray-300" />
-            <p className="text-lg font-medium text-gray-500">No leads yet</p>
-            <p className="text-sm mt-1">
-              Leads will appear here once users fill out the enquiry forms.
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+        {/* Table 1 — Registered Users */}
+        <section>
+          <div className="mb-4">
+            <h2 className="text-xl font-bold text-gray-900">
+              Registered Users
+            </h2>
+            <p className="text-gray-500 mt-1 text-sm">
+              All users who have created an account on Welkee.
             </p>
           </div>
-        ) : (
-          <div
-            className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
-            data-ocid="admin.table"
-          >
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-gray-50">
-                    <TableHead className="w-12 font-semibold text-gray-700">
-                      #
-                    </TableHead>
-                    <TableHead className="font-semibold text-gray-700">
-                      Name
-                    </TableHead>
-                    <TableHead className="font-semibold text-gray-700">
-                      Phone
-                    </TableHead>
-                    <TableHead className="font-semibold text-gray-700">
-                      City
-                    </TableHead>
-                    <TableHead className="font-semibold text-gray-700">
-                      Bike Name
-                    </TableHead>
-                    <TableHead className="font-semibold text-gray-700">
-                      Type
-                    </TableHead>
-                    <TableHead className="font-semibold text-gray-700">
-                      Date / Time
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {leads.map((lead, idx) => (
-                    <TableRow
-                      key={lead.id}
-                      className={idx % 2 === 0 ? "bg-white" : "bg-gray-50/60"}
-                      data-ocid={`admin.row.item.${idx + 1}`}
-                    >
-                      <TableCell className="text-gray-400 text-sm">
-                        {idx + 1}
-                      </TableCell>
-                      <TableCell className="font-medium text-gray-900">
-                        {lead.name}
-                      </TableCell>
-                      <TableCell className="text-gray-600 font-mono text-sm">
-                        {lead.phone}
-                      </TableCell>
-                      <TableCell className="text-gray-600">
-                        {lead.city}
-                      </TableCell>
-                      <TableCell className="text-gray-700 font-medium">
-                        {lead.bikeName}
-                      </TableCell>
-                      <TableCell>
-                        <span
-                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            lead.formType === "test-ride"
-                              ? "bg-orange-100 text-orange-700"
-                              : "bg-blue-100 text-blue-700"
-                          }`}
-                        >
-                          {formatFormType(lead.formType)}
-                        </span>
-                      </TableCell>
-                      <TableCell className="text-gray-500 text-sm whitespace-nowrap">
-                        {formatTimestamp(lead.timestamp)}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </div>
-        )}
 
-        {leads.length > 0 && (
-          <div className="mt-4 flex justify-end">
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-red-500 border-red-200 hover:bg-red-50"
-              onClick={() => {
-                if (confirm("Clear all leads? This cannot be undone.")) {
-                  localStorage.removeItem("welkee_leads");
-                  setLeads([]);
-                }
-              }}
+          {users.length === 0 ? (
+            <div
+              className="flex flex-col items-center justify-center py-16 text-gray-400 bg-white rounded-xl border border-gray-200"
+              data-ocid="admin.users.empty_state"
             >
-              <Trash2 size={14} className="mr-1.5" />
-              Clear All Leads
-            </Button>
+              <Users size={40} className="mb-3 text-gray-300" />
+              <p className="text-base font-medium text-gray-500">
+                No registered users yet.
+              </p>
+            </div>
+          ) : (
+            <div
+              className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+              data-ocid="admin.users.table"
+            >
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gray-50">
+                      <TableHead className="w-12 font-semibold text-gray-700">
+                        #
+                      </TableHead>
+                      <TableHead className="font-semibold text-gray-700">
+                        Email Address
+                      </TableHead>
+                      <TableHead className="font-semibold text-gray-700">
+                        Date of Signup
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((u, idx) => (
+                      <TableRow
+                        key={u.id}
+                        className={idx % 2 === 0 ? "bg-white" : "bg-gray-50/60"}
+                        data-ocid={`admin.users.row.item.${idx + 1}`}
+                      >
+                        <TableCell className="text-gray-400 text-sm">
+                          {idx + 1}
+                        </TableCell>
+                        <TableCell className="font-medium text-gray-900">
+                          {u.email}
+                        </TableCell>
+                        <TableCell className="text-gray-600 text-sm">
+                          {u.signupDate ?? "—"}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* Table 2 — Customer Leads */}
+        <section>
+          <div className="mb-4">
+            <h2 className="text-xl font-bold text-gray-900">Customer Leads</h2>
+            <p className="text-gray-500 mt-1 text-sm">
+              Phone numbers collected when users click Buy Now or WhatsApp
+              Share.
+            </p>
           </div>
-        )}
+
+          {sortedLeads.length === 0 ? (
+            <div
+              className="flex flex-col items-center justify-center py-16 text-gray-400 bg-white rounded-xl border border-gray-200"
+              data-ocid="admin.leads.empty_state"
+            >
+              <Users size={40} className="mb-3 text-gray-300" />
+              <p className="text-base font-medium text-gray-500">
+                No leads captured yet.
+              </p>
+            </div>
+          ) : (
+            <div
+              className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
+              data-ocid="admin.leads.table"
+            >
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gray-50">
+                      <TableHead className="w-12 font-semibold text-gray-700">
+                        #
+                      </TableHead>
+                      <TableHead className="font-semibold text-gray-700">
+                        Customer Phone Number
+                      </TableHead>
+                      <TableHead className="font-semibold text-gray-700">
+                        Time of Inquiry
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {sortedLeads.map((lead, idx) => (
+                      <TableRow
+                        key={lead.id}
+                        className={idx % 2 === 0 ? "bg-white" : "bg-gray-50/60"}
+                        data-ocid={`admin.leads.row.item.${idx + 1}`}
+                      >
+                        <TableCell className="text-gray-400 text-sm">
+                          {idx + 1}
+                        </TableCell>
+                        <TableCell className="font-mono font-semibold text-gray-900">
+                          +91 {lead.phone}
+                        </TableCell>
+                        <TableCell className="text-gray-600 text-sm whitespace-nowrap">
+                          {new Date(lead.timestamp).toLocaleString("en-IN")}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          )}
+        </section>
       </main>
 
       <footer className="text-center text-xs text-gray-400 py-6 mt-8 border-t border-gray-200">

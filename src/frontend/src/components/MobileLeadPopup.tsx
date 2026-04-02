@@ -5,6 +5,7 @@ interface MobileLeadPopupProps {
   vehicleName: string;
   vehicleId: string;
   brandUrl: string;
+  whatsappUrl?: string;
   onClose: () => void;
 }
 
@@ -12,6 +13,7 @@ export function MobileLeadPopup({
   vehicleName,
   vehicleId,
   brandUrl,
+  whatsappUrl,
   onClose,
 }: MobileLeadPopupProps) {
   const [phone, setPhone] = useState("");
@@ -25,12 +27,8 @@ export function MobileLeadPopup({
       return;
     }
     addPhoneLead(digits, vehicleName, vehicleId);
-    window.open(brandUrl, "_blank", "noopener,noreferrer");
-    onClose();
-  };
-
-  const handleCancel = () => {
-    window.open(brandUrl, "_blank", "noopener,noreferrer");
+    const targetUrl = whatsappUrl || brandUrl;
+    window.open(targetUrl, "_blank", "noopener,noreferrer");
     onClose();
   };
 
@@ -43,47 +41,14 @@ export function MobileLeadPopup({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ backgroundColor: "rgba(0,0,0,0.6)" }}
+      style={{ backgroundColor: "rgba(0,0,0,0.7)" }}
       data-ocid="lead.modal"
     >
-      {/* Backdrop click — cancel without saving */}
-      <button
-        type="button"
-        className="absolute inset-0 w-full h-full cursor-default"
-        aria-label="Close popup"
-        onClick={handleCancel}
-        tabIndex={-1}
-      />
-
       <dialog
         open
         className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-7 m-0"
         aria-labelledby="lead-popup-title"
       >
-        {/* Close button */}
-        <button
-          type="button"
-          onClick={handleCancel}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition-colors rounded-full p-1"
-          aria-label="Close"
-          data-ocid="lead.close_button"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            className="w-5 h-5"
-            aria-hidden="true"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
-
         {/* Icon */}
         <div className="flex items-center justify-center w-12 h-12 bg-orange-100 rounded-full mb-4 mx-auto">
           <svg
@@ -107,14 +72,14 @@ export function MobileLeadPopup({
           id="lead-popup-title"
           className="text-xl font-extrabold text-gray-900 text-center mb-1"
         >
-          Get Exclusive Access
+          Get the Official Brand Link &amp; Special Offers
         </h2>
         <p className="text-sm text-gray-500 text-center mb-1">
           <span className="font-semibold text-[#004085]">{vehicleName}</span>
         </p>
         <p className="text-sm text-gray-500 text-center mb-5">
-          Enter your mobile number to visit the Official Brand Site &amp; access
-          Special Offers.
+          Enter your Mobile Number to get the Official Brand Link &amp; Special
+          Offers.
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-3">
@@ -161,15 +126,6 @@ export function MobileLeadPopup({
                 d="M13 7l5 5m0 0l-5 5m5-5H6"
               />
             </svg>
-          </button>
-
-          <button
-            type="button"
-            onClick={handleCancel}
-            className="w-full text-gray-400 hover:text-gray-600 text-xs py-1 transition-colors"
-            data-ocid="lead.cancel_button"
-          >
-            Skip &amp; Continue without saving
           </button>
         </form>
 

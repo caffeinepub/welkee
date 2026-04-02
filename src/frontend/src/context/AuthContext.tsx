@@ -9,6 +9,7 @@ interface StoredUser {
   id: number;
   email: string;
   password: string;
+  signupDate: string;
 }
 
 interface AuthContextValue {
@@ -110,6 +111,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         id: Date.now(),
         email: email.trim(),
         password,
+        signupDate: new Date().toLocaleString("en-IN"),
       };
       users.push(newUser);
       saveStoredUsers(users);

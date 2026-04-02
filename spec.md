@@ -1,45 +1,43 @@
-# Welkee — Analytics & Lead Capture Upgrade
+# Welkee — Lead Capture & Dashboard Privacy Fix
 
 ## Current State
-- 20 real vehicles (10 bikes, 10 scooters) with authentic specs and images
-- "Buy Now" buttons open official brand URLs in new tab (no lead forms)
-- WhatsApp Share buttons on every card
-- Authentication via localStorage: email/password with super-admin detection (mohdali7z7z00@gmail.com)
-- Admin footer button only visible when isSuperAdmin === true
-- AdminPage (/admin) behind PIN 20242025786786, currently shows one table: Customer Leads (from old LeadsContext)
-- LeadsContext stores leads in localStorage with fields: name, phone, city, vehicleName, formType
-- No click tracking or vehicle popularity tracking exists
-- Registered users stored only in localStorage (welkee_users key)
-- Backend has submitLead(), registerUser(), getLeads() but frontend uses localStorage only
+
+- **MobileLeadPopup** (MobileLeadPopup.tsx): Already exists. Shows when Buy Now is clicked. Has a 'Skip & Continue' button that allows users to bypass phone capture and go directly to brand URL.
+- **WhatsApp button** (VehicleCard.tsx): `handleWhatsAppClick` only records a click stat, then immediately opens the WhatsApp share URL — no phone capture popup shown.
+- **AdminDashboard** (AdminDashboard.tsx): Uses a PIN of "7860". Only shows one table (old Leads table with name/phone/city/bikeName/formType/timestamp). Does NOT show Registered Users table. Does NOT show separate clean phone leads table. Currently has Vehicle Popularity data built in via clickStats utility.
+- **Footer Admin button**: Already correctly gated by `isSuperAdmin` prop.
+- **AuthContext**: Already correctly checks `mohdali7z7z00@gmail.com` / `20242025786786` for SUPER ADMIN.
+- **clickStats.ts**: Has both click tracking and phone lead utilities (`getPhoneLeads`, `addPhoneLead`).
+- **Admin PIN**: Currently set to "7860" — needs updating to "20242025786786".
 
 ## Requested Changes (Diff)
 
 ### Add
-- **Click tracking context**: Track every "Buy Now" click and "WhatsApp Share" click per vehicle, stored in localStorage under `welkee_click_stats` as `{ [vehicleId]: { buyNow: number, whatsapp: number } }`
-- **Mobile Lead Capture popup**: When user clicks "Buy Now" (or "Get Deal"), intercept the click and show a modal: "Enter your Mobile Number to access the Official Brand Site & Special Offers." Fields: phone number (required). On submit: save phone + vehicleName + timestamp to leads storage, then proceed to open the brand URL in new tab
-- **CustomerLeads storage** in localStorage: `welkee_phone_leads` — array of `{ id, phone, vehicleName, clickType, timestamp }`
-- **Registered Users list in Admin**: Read from existing `welkee_users` localStorage key and display emails in a table
-- **Vehicle Popularity table in Admin**: Aggregated click totals per vehicle from `welkee_click_stats`
-- **Customer Leads table in Admin**: Phone numbers from `welkee_phone_leads`
+- Show MobileLeadPopup when WhatsApp button is clicked too (before opening WhatsApp share link)
+- Registered Users table in AdminDashboard: columns = Email Address, Date of Signup
+- Phone Leads table in AdminDashboard: columns = Customer Phone Number, Time of Inquiry
+- Auth system already stores users in localStorage `welkee_users` — add `signupDate` field to stored user data
 
 ### Modify
-- **VehicleCard.tsx**: 
-  - "Buy Now" button: intercept click → record click stat → show mobile number popup → on submit, save lead + open brand URL
-  - "WhatsApp Share" button: intercept click → record click stat → open WhatsApp URL
-- **AdminPage.tsx**: Rebuild into 3 clear tabs/tables:
-  1. "Registered Users" — emails from welkee_users localStorage
-  2. "Vehicle Popularity" — click totals per vehicle (Buy Now + WhatsApp), sorted by most clicks
-  3. "Customer Leads" — phone numbers from welkee_phone_leads
-- **AdminDashboard.tsx** (if used): Keep consistent with AdminPage changes (AdminPage is the primary; AdminDashboard.tsx may be unused/redundant — check App.tsx routing)
-- **Footer.tsx**: Admin button remains only visible to isSuperAdmin — no change needed, already correct
+- **MobileLeadPopup**: Make it MANDATORY — remove the 'Skip & Continue' button and backdrop/close button that allow bypassing without entering a number. The only way to proceed is entering a valid phone number and submitting.
+- **MobileLeadPopup**: Update title/text to match: "Enter your Mobile Number to get the Official Brand Link & Special Offers."
+- **VehicleCard**: WhatsApp button must now show MobileLeadPopup (storing phone lead) BEFORE opening the WhatsApp share URL
+- **AdminDashboard**: Replace existing single table with two clean tables. Remove Vehicle Popularity section entirely.
+  - Table 1 (Users): Email Address | Date of Signup
+  - Table 2 (Leads): Customer Phone Number | Time of Inquiry
+- **AdminDashboard**: Update PIN from "7860" to "20242025786786" (but maxLength on input may need increasing)
+- **AuthContext**: When a new user registers, store `signupDate` (ISO string or locale string) alongside email/password in localStorage
 
 ### Remove
-- Old LeadsContext `addLead` being called on "Buy Now" (was already removed per previous build, confirm)
-- No removal of any vehicle data, images, specs, or layout
+- 'Skip & Continue without saving' button from MobileLeadPopup
+- Backdrop click-to-dismiss (cancel) from MobileLeadPopup
+- Close X button from MobileLeadPopup
+- Vehicle Popularity table/section from AdminDashboard
+- Old leads table format (name/city/formType columns) — replaced by the two clean tables
 
 ## Implementation Plan
-1. Add `welkee_click_stats` helpers and `welkee_phone_leads` helpers to a new utils file `clickStats.ts`
-2. Create `MobileLeadPopup.tsx` — modal that collects phone number, calls back with phone then opens URL
-3. Update `VehicleCard.tsx`: intercept Buy Now click (record stat, show popup); intercept WhatsApp click (record stat only)
-4. Rebuild `AdminPage.tsx` with 3-table layout: Registered Users / Vehicle Popularity / Customer Leads, all from localStorage
-5. Keep PIN gate as-is (20242025786786), keep isSuperAdmin footer gate as-is
+
+1. **MobileLeadPopup.tsx** — Remove skip/cancel/close functionality. Make phone number submission mandatory. Update heading text. After submit, open either brandUrl (Buy Now flow) or whatsappUrl (WhatsApp flow) — accept an optional `whatsappUrl` prop to know which to open.
+2. **VehicleCard.tsx** — Add `showWhatsAppLeadPopup` state. On WhatsApp button click, show MobileLeadPopup with whatsappUrl set. After number submitted, open WhatsApp share URL.
+3. **AuthContext.tsx** — Add `signupDate` to StoredUser type. Save `new Date().toLocaleString('en-IN')` when registering a new user.
+4. **AdminDashboard.tsx** — Update PIN to "20242025786786". Remove old leads table and Vehicle Popularity. Add Table 1 reading from `welkee_users` localStorage (email + signupDate). Add Table 2 reading from `welkee_phone_leads` localStorage (phone + timestamp formatted). Increase PIN input maxLength to 14.
