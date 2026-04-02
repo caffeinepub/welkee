@@ -21,6 +21,7 @@ interface BikesSectionProps {
   isWishlisted?: (name: string) => boolean;
   onWishlistToggle?: (name: string) => void;
   selectedCity?: string;
+  onViewAllBikes: () => void;
 }
 
 export function BikesSection({
@@ -35,6 +36,7 @@ export function BikesSection({
   isWishlisted,
   onWishlistToggle,
   selectedCity,
+  onViewAllBikes,
 }: BikesSectionProps) {
   let displayBikes = bikes;
   if (activeCategory === "scooter") displayBikes = STATIC_SCOOTERS;
@@ -45,6 +47,9 @@ export function BikesSection({
       (b) => b.brand.toLowerCase() === activeBrand.toLowerCase(),
     );
   }
+
+  // Show only 6 on homepage, user can click View All to see more
+  const previewBikes = displayBikes.slice(0, 6);
 
   return (
     <section className="py-10" data-ocid="bikes.section">
@@ -95,7 +100,7 @@ export function BikesSection({
           </div>
         </div>
 
-        {displayBikes.length === 0 ? (
+        {previewBikes.length === 0 ? (
           <div
             className="text-center py-16 text-gray-400"
             data-ocid="bikes.empty_state"
@@ -106,7 +111,7 @@ export function BikesSection({
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {displayBikes.map((bike, i) => (
+            {previewBikes.map((bike, i) => (
               <BikeCard
                 key={bike.name}
                 bike={bike}
@@ -125,6 +130,7 @@ export function BikesSection({
         <div className="text-center mt-8">
           <button
             type="button"
+            onClick={onViewAllBikes}
             className="border-2 border-welkee-blue text-welkee-blue font-semibold px-8 py-3 rounded-full hover:bg-welkee-blue hover:text-white transition-all"
             data-ocid="bikes.button"
           >

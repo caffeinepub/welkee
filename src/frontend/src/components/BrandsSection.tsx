@@ -5,13 +5,18 @@ interface BrandsSectionProps {
   brands: Brand[];
   onBrandClick: (brandName: string) => void;
   activeBrand: string | null;
+  onViewAllBrands: () => void;
 }
 
 export function BrandsSection({
   brands,
   onBrandClick,
   activeBrand,
+  onViewAllBrands,
 }: BrandsSectionProps) {
+  // Show only first 8 brands in homepage preview
+  const displayBrands = brands.slice(0, 8);
+
   return (
     <section className="py-10" data-ocid="brands.section">
       <div className="max-w-7xl mx-auto px-4">
@@ -21,14 +26,15 @@ export function BrandsSection({
           </h2>
           <button
             type="button"
+            onClick={onViewAllBrands}
             className="text-welkee-blue text-sm font-medium hover:underline"
             data-ocid="brands.button"
           >
             View All Brands →
           </button>
         </div>
-        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-7 gap-3">
-          {brands.map((brand, i) => {
+        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-8 gap-3">
+          {displayBrands.map((brand, i) => {
             const isActive = activeBrand === brand.name;
             return (
               <motion.button

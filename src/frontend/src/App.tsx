@@ -1,221 +1,98 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
-import { toast } from "sonner";
-import { AdminDashboard } from "./components/AdminDashboard";
-import { AuthModal } from "./components/AuthModal";
-import { BikeComparison } from "./components/BikeComparison";
-import { BikeDetailsPage } from "./components/BikeDetailsPage";
-import { BikesSection } from "./components/BikesSection";
-import { BrandsSection } from "./components/BrandsSection";
 import { Footer } from "./components/Footer";
 import { Header } from "./components/Header";
-import { HeroSection } from "./components/HeroSection";
-import { LeadPopup } from "./components/LeadPopup";
-import { WishlistPage } from "./components/WishlistPage";
 import { Toaster } from "./components/ui/sonner";
-import { STATIC_BIKES, STATIC_BRANDS } from "./data/staticData";
-import { useEmailAuth } from "./hooks/useEmailAuth";
-import {
-  type Bike,
-  useGetAllBrands,
-  useGetFeaturedBikes,
-} from "./hooks/useQueries";
-import { useWishlist } from "./hooks/useWishlist";
+import { CityProvider } from "./context/CityContext";
+import { CompareProvider } from "./context/CompareContext";
+import { LeadsProvider } from "./context/LeadsContext";
+import { ThemeProvider } from "./context/ThemeContext";
+import { AboutPage } from "./pages/AboutPage";
+import { AdminPage } from "./pages/AdminPage";
+import { AllVehiclesPage } from "./pages/AllVehiclesPage";
+import { ComparePage } from "./pages/ComparePage";
+import { ContactPage } from "./pages/ContactPage";
+import { DealersPage } from "./pages/DealersPage";
+import { EMIPage } from "./pages/EMIPage";
+import { HomePage } from "./pages/HomePage";
+import { NewsPage } from "./pages/NewsPage";
+import { PrivacyPage } from "./pages/PrivacyPage";
 
 const queryClient = new QueryClient();
 
-type CurrentView = "home" | "wishlist" | { type: "bike-detail"; bike: Bike };
+type Page =
+  | "home"
+  | "all-vehicles"
+  | "compare"
+  | "emi"
+  | "contact"
+  | "about"
+  | "privacy"
+  | "admin"
+  | "dealers"
+  | "news";
 
-function AppContent() {
-  const [activeTab, setActiveTab] = useState("new");
-  const [currentView, setCurrentView] = useState<CurrentView>("home");
-  const [activeBrand, setActiveBrand] = useState<string | null>(null);
-  const [selectedCity, setSelectedCity] = useState("Select City");
-  const [leadPopup, setLeadPopup] = useState<{
-    open: boolean;
-    bike: Bike | null;
-    type: "offers" | "price";
-  }>({
-    open: false,
-    bike: null,
-    type: "offers",
-  });
-  const [authModalOpen, setAuthModalOpen] = useState(false);
+function getInitialPage(): Page {
+  const path = window.location.pathname;
+  if (path === "/admin") return "admin";
+  if (path === "/all-vehicles" || path === "/catalog") return "all-vehicles";
+  if (path === "/compare") return "compare";
+  if (path === "/emi-calculator") return "emi";
+  if (path === "/contact") return "contact";
+  if (path === "/about") return "about";
+  if (path === "/privacy") return "privacy";
+  if (path === "/dealers") return "dealers";
+  if (path === "/news") return "news";
+  return "home";
+}
 
-  const { user, login, register, logout } = useEmailAuth();
-  const userId = user?.id?.toString() ?? null;
-  const {
-    wishlist,
-    toggleWishlist,
-    isWishlisted,
-    count: wishlistCount,
-  } = useWishlist(userId);
+function AppShell() {
+  const [page, setPage] = useState<Page>(getInitialPage);
 
-  const { data: apiBikes } = useGetFeaturedBikes();
-  const { data: apiBrands } = useGetAllBrands();
-
-  const bikes = apiBikes && apiBikes.length > 0 ? apiBikes : STATIC_BIKES;
-  const brands = apiBrands && apiBrands.length > 0 ? apiBrands : STATIC_BRANDS;
-
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab);
-    if (currentView !== "home") setCurrentView("home");
-    document
-      .getElementById("bikes-section")
-      ?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const handleBikeClick = (bike: Bike) => {
-    setCurrentView({ type: "bike-detail", bike });
+  const navigate = (p: string) => {
+    setPage(p as Page);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  const handleSearchSelect = (bike: Bike) => {
-    setCurrentView({ type: "bike-detail", bike });
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  const isAdmin = page === "admin";
 
-  const handleLeadOpen = (bike: Bike, type: "offers" | "price") => {
-    setLeadPopup({ open: true, bike, type });
-  };
-
-  const handleBrandClick = (brandName: string) => {
-    setActiveBrand((prev) => (prev === brandName ? null : brandName));
-    if (currentView !== "home") setCurrentView("home");
-    document
-      .getElementById("bikes-section")
-      ?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const handleWishlistToggle = (bikeName: string) => {
-    if (!user) {
-      setAuthModalOpen(true);
-      return;
-    }
-    const result = toggleWishlist(bikeName);
-    if (result === "added") toast.success(`${bikeName} saved to wishlist`);
-    else if (result === "removed")
-      toast.info(`${bikeName} removed from wishlist`);
-  };
-
-  const handleWishlistClick = () => {
-    if (!user) {
-      setAuthModalOpen(true);
-      return;
-    }
-    setCurrentView("wishlist");
-  };
+  if (isAdmin) {
+    return <AdminPage />;
+  }
 
   return (
-    <div className="min-h-screen bg-welkee-gray font-sans">
-      <Header
-        activeTab={activeTab}
-        onTabChange={handleTabChange}
-        onLoginClick={() => setAuthModalOpen(true)}
-        user={user}
-        onLogout={logout}
-        wishlistCount={wishlistCount}
-        onWishlistClick={handleWishlistClick}
-        selectedCity={selectedCity}
-        onCityChange={setSelectedCity}
-        onSearchSelect={handleSearchSelect}
-      />
-
-      {/* Spacer for fixed header */}
-      <div className="h-[108px] md:h-[108px]" />
-
-      {currentView === "home" ? (
-        <main>
-          <HeroSection
-            onSearch={() =>
-              document
-                .getElementById("bikes-section")
-                ?.scrollIntoView({ behavior: "smooth" })
-            }
-          />
-
-          <div className="max-w-7xl mx-auto">
-            <div className="bg-welkee-gray">
-              <BrandsSection
-                brands={brands}
-                onBrandClick={handleBrandClick}
-                activeBrand={activeBrand}
-              />
-
-              <div id="bikes-section">
-                <BikesSection
-                  bikes={bikes.filter(
-                    (b) => b.category === "new" || activeTab === "new",
-                  )}
-                  activeCategory={activeTab}
-                  onCategoryChange={handleTabChange}
-                  onBikeClick={handleBikeClick}
-                  onLeadOpen={handleLeadOpen}
-                  activeBrand={activeBrand}
-                  onBrandChange={setActiveBrand}
-                  isLoggedIn={!!user}
-                  isWishlisted={isWishlisted}
-                  onWishlistToggle={handleWishlistToggle}
-                  selectedCity={selectedCity}
-                />
-              </div>
-
-              <BikeComparison />
-            </div>
-          </div>
-        </main>
-      ) : currentView === "wishlist" ? (
-        <WishlistPage
-          wishlist={wishlist}
-          onBack={() => setCurrentView("home")}
-          onBikeClick={handleBikeClick}
-          onWishlistToggle={handleWishlistToggle}
-          selectedCity={selectedCity}
-        />
-      ) : (
-        <BikeDetailsPage
-          bike={currentView.bike}
-          onBack={() => setCurrentView("home")}
-          selectedCity={selectedCity}
-          allBikes={bikes}
-          onBikeSelect={handleBikeClick}
-        />
-      )}
-
-      <Footer />
-
-      <LeadPopup
-        open={leadPopup.open}
-        onClose={() => setLeadPopup((prev) => ({ ...prev, open: false }))}
-        bikeName={leadPopup.bike?.name ?? ""}
-        type={leadPopup.type}
-      />
-
-      <AuthModal
-        open={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        onLogin={async (email, pass) => {
-          const result = await login(email, pass);
-          if ("err" in result) return result.err;
-          return null;
-        }}
-        onRegister={async (email, pass) => {
-          const result = await register(email, pass);
-          if ("err" in result) return result.err;
-          return null;
-        }}
-      />
-
+    <div className="min-h-screen flex flex-col bg-background">
+      <Header currentPage={page} onNavigate={navigate} />
+      <div className="h-16" />
+      <div className="flex-1">
+        {page === "home" && <HomePage onNavigate={navigate} />}
+        {page === "all-vehicles" && <AllVehiclesPage />}
+        {page === "compare" && <ComparePage onNavigate={navigate} />}
+        {page === "emi" && <EMIPage />}
+        {page === "contact" && <ContactPage />}
+        {page === "about" && <AboutPage />}
+        {page === "privacy" && <PrivacyPage />}
+        {page === "dealers" && <DealersPage />}
+        {page === "news" && <NewsPage />}
+      </div>
+      <Footer onNavigate={navigate} />
       <Toaster position="bottom-right" />
     </div>
   );
 }
 
 export default function App() {
-  const isAdmin = window.location.pathname === "/admin";
   return (
     <QueryClientProvider client={queryClient}>
-      {isAdmin ? <AdminDashboard /> : <AppContent />}
+      <ThemeProvider>
+        <CityProvider>
+          <LeadsProvider>
+            <CompareProvider>
+              <AppShell />
+            </CompareProvider>
+          </LeadsProvider>
+        </CityProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

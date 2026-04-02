@@ -38,18 +38,9 @@ export default {
         border: 'oklch(var(--border) / <alpha-value>)',
         input: 'oklch(var(--input) / <alpha-value>)',
         ring: 'oklch(var(--ring) / <alpha-value>)',
-        welkee: {
-          blue: '#1F5F9B',
-          'blue-dark': '#174f82',
-          orange: '#F47A1F',
-          'orange-dark': '#d96a15',
-          gray: '#F3F6F9',
-          text: '#111827',
-          muted: '#4B5563',
-        },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Inter', 'Roboto', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -57,8 +48,8 @@ export default {
         sm: 'calc(var(--radius) - 4px)',
       },
       boxShadow: {
-        card: '0 2px 12px 0 rgba(31,95,155,0.08)',
-        'card-hover': '0 6px 24px 0 rgba(31,95,155,0.14)',
+        card: '0 2px 12px rgba(0,64,133,0.08)',
+        'card-hover': '0 8px 30px rgba(0,64,133,0.15)',
       },
     },
   },

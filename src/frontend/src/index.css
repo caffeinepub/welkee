@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -6,39 +6,48 @@
 
 @layer base {
   :root {
-    /* Primary blue: #1F5F9B → oklch(0.44 0.12 245) */
-    --primary: 0.44 0.12 245;
-    --primary-foreground: 1 0 0;
-
-    /* CTA orange: #F47A1F → oklch(0.68 0.17 55) */
-    --accent: 0.68 0.17 55;
-    --accent-foreground: 1 0 0;
-
-    /* Page background: #F3F6F9 → oklch(0.96 0.01 240) */
-    --background: 0.96 0.01 240;
-    --foreground: 0.14 0.02 240;
-
-    /* Cards: white */
+    --background: 0.97 0.005 240;
+    --foreground: 0.15 0.025 240;
     --card: 1 0 0;
-    --card-foreground: 0.14 0.02 240;
-
+    --card-foreground: 0.15 0.025 240;
     --popover: 1 0 0;
-    --popover-foreground: 0.14 0.02 240;
-
-    --secondary: 0.94 0.02 240;
-    --secondary-foreground: 0.44 0.12 245;
-
-    --muted: 0.94 0.02 240;
+    --popover-foreground: 0.15 0.025 240;
+    --primary: 0.35 0.13 248;
+    --primary-foreground: 1 0 0;
+    --secondary: 0.93 0.015 240;
+    --secondary-foreground: 0.35 0.13 248;
+    --muted: 0.93 0.01 240;
     --muted-foreground: 0.5 0.03 240;
-
-    --destructive: 0.58 0.22 25;
+    --accent: 0.68 0.18 53;
+    --accent-foreground: 1 0 0;
+    --destructive: 0.57 0.22 25;
     --destructive-foreground: 1 0 0;
-
-    --border: 0.91 0.02 240;
-    --input: 0.91 0.02 240;
-    --ring: 0.44 0.12 245;
-
+    --border: 0.9 0.015 240;
+    --input: 0.9 0.015 240;
+    --ring: 0.35 0.13 248;
     --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 0.14 0.02 255;
+    --foreground: 0.95 0.01 240;
+    --card: 0.2 0.025 255;
+    --card-foreground: 0.95 0.01 240;
+    --popover: 0.2 0.025 255;
+    --popover-foreground: 0.95 0.01 240;
+    --primary: 0.55 0.14 248;
+    --primary-foreground: 1 0 0;
+    --secondary: 0.25 0.03 255;
+    --secondary-foreground: 0.95 0.01 240;
+    --muted: 0.25 0.03 255;
+    --muted-foreground: 0.65 0.03 240;
+    --accent: 0.68 0.18 53;
+    --accent-foreground: 1 0 0;
+    --destructive: 0.57 0.22 25;
+    --destructive-foreground: 1 0 0;
+    --border: 0.28 0.03 255;
+    --input: 0.28 0.03 255;
+    --ring: 0.55 0.14 248;
   }
 }
 
@@ -48,25 +57,37 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: "Inter", sans-serif;
+    font-family: "Inter", "Roboto", system-ui, sans-serif;
+  }
+  html {
+    scroll-behavior: smooth;
   }
 }
 
-/* Custom utility classes */
-.welkee-header {
-  background-color: oklch(0.44 0.12 245);
-}
-
-.welkee-btn-orange {
-  background-color: oklch(0.68 0.17 55);
-  color: white;
-  transition: background-color 0.2s ease;
-}
-
-.welkee-btn-orange:hover {
-  background-color: oklch(0.62 0.18 55);
-}
-
-.welkee-hero {
-  background-color: oklch(0.3 0.1 245);
+@layer utilities {
+  .welkee-gradient {
+    background: linear-gradient(135deg, #004085 0%, #0066cc 100%);
+  }
+  .orange-gradient {
+    background: linear-gradient(135deg, #ff8225 0%, #e06010 100%);
+  }
+  .card-hover {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(0, 64, 133, 0.15);
+  }
+  .btn-primary {
+    @apply bg-[#004085] hover:bg-[#002d5e] text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200;
+  }
+  .btn-orange {
+    @apply bg-[#FF8225] hover:bg-[#e06010] text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200;
+  }
+  .btn-outline-blue {
+    @apply border border-[#004085] text-[#004085] hover:bg-[#004085] hover:text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200;
+  }
+  .btn-outline-orange {
+    @apply border border-[#FF8225] text-[#FF8225] hover:bg-[#FF8225] hover:text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200;
+  }
 }
