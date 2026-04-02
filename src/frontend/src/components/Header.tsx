@@ -1,12 +1,13 @@
-import { Moon, MoreVertical, Sun, X } from "lucide-react";
+import { Moon, MoreVertical, Sun, User, X } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import { CITIES, useCityContext } from "../context/CityContext";
 import { useTheme } from "../context/ThemeContext";
+import { AuthModal } from "./AuthModal";
 
 interface HeaderProps {
   currentPage: string;
   onNavigate: (page: string) => void;
-  onLogoSecretClick?: (e: React.MouseEvent) => void;
 }
 
 const menuItems = [
@@ -17,25 +18,23 @@ const menuItems = [
   { label: "Contact Us", page: "contact" },
 ];
 
-export function Header({
-  currentPage,
-  onNavigate,
-  onLogoSecretClick,
-}: HeaderProps) {
+export function Header({ currentPage, onNavigate }: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
   const { selectedCity, setSelectedCity } = useCityContext();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showAuth, setShowAuth] = useState(false);
+  const auth = useAuth();
+
+  const truncateEmail = (email: string) =>
+    email.length > 20 ? `${email.slice(0, 20)}...` : email;
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 shadow-md border-b border-gray-200 dark:border-gray-700">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-3">
-        {/* Logo — no admin link, secret shift+triple-click for internal access */}
+        {/* Logo */}
         <button
           type="button"
-          onClick={(e) => {
-            if (onLogoSecretClick) onLogoSecretClick(e);
-            if (!e.shiftKey) onNavigate("home");
-          }}
+          onClick={() => onNavigate("home")}
           className="text-2xl font-extrabold tracking-wider text-[#004085] dark:text-blue-400 hover:opacity-80 transition-opacity shrink-0"
           data-ocid="header.link"
         >
@@ -112,6 +111,8 @@ export function Header({
                     ))}
                   </select>
                 </div>
+
+                {/* Nav items */}
                 {menuItems.map((item) => (
                   <button
                     key={item.page}
@@ -130,11 +131,55 @@ export function Header({
                     {item.label}
                   </button>
                 ))}
+
+                {/* Divider */}
+                <div className="border-t border-gray-100 dark:border-gray-700 my-1" />
+
+                {/* Login / Account section */}
+                {!auth.user ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAuth(true);
+                      setMenuOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-3 text-sm font-semibold flex items-center gap-2 text-[#004085] dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors"
+                    data-ocid="header.open_modal_button"
+                  >
+                    <User size={16} />
+                    Login / Account
+                  </button>
+                ) : (
+                  <>
+                    <div className="px-4 py-2 text-xs text-gray-400 dark:text-gray-500 truncate">
+                      {truncateEmail(auth.user.email)}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        auth.logout();
+                        setMenuOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 text-sm font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 transition-colors"
+                      data-ocid="header.button"
+                    >
+                      Logout
+                    </button>
+                  </>
+                )}
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {/* Auth Modal */}
+      <AuthModal
+        open={showAuth}
+        onClose={() => setShowAuth(false)}
+        onLogin={auth.login}
+        onRegister={auth.register}
+      />
     </header>
   );
 }
