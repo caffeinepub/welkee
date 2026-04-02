@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useLeads } from "../context/LeadsContext";
 import type { Lead } from "../context/LeadsContext";
 
-const ADMIN_PIN = "7860";
+const ADMIN_PIN = "20242025786786";
 
 function exportCSV(leads: Lead[]) {
   const headers = [
@@ -75,7 +75,6 @@ export function AdminPage() {
               value={pin}
               onChange={(e) => setPin(e.target.value)}
               placeholder="Enter PIN"
-              maxLength={6}
               className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-xl text-white text-center text-xl tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-500"
               data-ocid="admin.input"
             />

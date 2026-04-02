@@ -6,6 +6,7 @@ import { useTheme } from "../context/ThemeContext";
 interface HeaderProps {
   currentPage: string;
   onNavigate: (page: string) => void;
+  onLogoSecretClick?: (e: React.MouseEvent) => void;
 }
 
 const menuItems = [
@@ -16,7 +17,11 @@ const menuItems = [
   { label: "Contact Us", page: "contact" },
 ];
 
-export function Header({ currentPage, onNavigate }: HeaderProps) {
+export function Header({
+  currentPage,
+  onNavigate,
+  onLogoSecretClick,
+}: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
   const { selectedCity, setSelectedCity } = useCityContext();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -24,10 +29,13 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 shadow-md border-b border-gray-200 dark:border-gray-700">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-3">
-        {/* Logo */}
+        {/* Logo — no admin link, secret shift+triple-click for internal access */}
         <button
           type="button"
-          onClick={() => onNavigate("home")}
+          onClick={(e) => {
+            if (onLogoSecretClick) onLogoSecretClick(e);
+            if (!e.shiftKey) onNavigate("home");
+          }}
           className="text-2xl font-extrabold tracking-wider text-[#004085] dark:text-blue-400 hover:opacity-80 transition-opacity shrink-0"
           data-ocid="header.link"
         >
@@ -54,7 +62,7 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
 
         {/* Right actions */}
         <div className="flex items-center gap-1">
-          {/* Theme toggle — icon reflects current theme */}
+          {/* Theme toggle */}
           <button
             type="button"
             onClick={toggleTheme}

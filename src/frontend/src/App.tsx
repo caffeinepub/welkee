@@ -32,9 +32,12 @@ type Page =
   | "dealers"
   | "news";
 
+// Admin is only accessible via the secret internal key combo:
+// Triple-click the copyright year in the footer while holding Shift
+// No public URL, no visible link — internal access only.
 function getInitialPage(): Page {
   const path = window.location.pathname;
-  if (path === "/admin") return "admin";
+  // /admin URL is blocked for public visitors — redirects to home
   if (path === "/all-vehicles" || path === "/catalog") return "all-vehicles";
   if (path === "/compare") return "compare";
   if (path === "/emi-calculator") return "emi";
@@ -48,10 +51,26 @@ function getInitialPage(): Page {
 
 function AppShell() {
   const [page, setPage] = useState<Page>(getInitialPage);
+  const [adminClickCount, setAdminClickCount] = useState(0);
+  const [lastAdminClick, setLastAdminClick] = useState(0);
 
   const navigate = (p: string) => {
     setPage(p as Page);
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Secret internal access: triple-click the WELKEE logo while holding Shift
+  // This is only useful when accessed from within the Caffeine platform
+  const handleLogoSecretClick = (e: React.MouseEvent) => {
+    if (!e.shiftKey) return;
+    const now = Date.now();
+    const newCount = now - lastAdminClick < 600 ? adminClickCount + 1 : 1;
+    setAdminClickCount(newCount);
+    setLastAdminClick(now);
+    if (newCount >= 3) {
+      setPage("admin");
+      setAdminClickCount(0);
+    }
   };
 
   const isAdmin = page === "admin";
@@ -62,7 +81,11 @@ function AppShell() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Header currentPage={page} onNavigate={navigate} />
+      <Header
+        currentPage={page}
+        onNavigate={navigate}
+        onLogoSecretClick={handleLogoSecretClick}
+      />
       <div className="h-16" />
       <div className="flex-1">
         {page === "home" && <HomePage onNavigate={navigate} />}

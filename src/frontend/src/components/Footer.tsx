@@ -79,8 +79,8 @@ export function Footer({ onNavigate }: FooterProps) {
               WELKEE
             </h3>
             <p className="text-blue-200 text-sm leading-relaxed">
-              India&apos;s #1 Trusted Digital Bike Showroom. Discover, compare,
-              and get the best deals on bikes and scooters across India.
+              India&apos;s Most Trusted Hub for Real Bikes &amp; Scooters.
+              Discover, compare, and get the best deals across India.
             </p>
             <div className="flex gap-3 mt-5">
               {socialLinks.map((s) => (
@@ -190,14 +190,6 @@ export function Footer({ onNavigate }: FooterProps) {
               caffeine.ai
             </a>
           </span>
-          <button
-            type="button"
-            onClick={() => onNavigate("admin")}
-            className="text-blue-400 hover:text-blue-200 text-xs opacity-50 hover:opacity-100 transition-opacity"
-            data-ocid="footer.link"
-          >
-            Admin
-          </button>
         </div>
       </div>
     </footer>
