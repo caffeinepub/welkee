@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { EMIWidget } from "../components/EMIWidget";
-import { LeadModal } from "../components/LeadModal";
 import { VehicleCard } from "../components/VehicleCard";
 import { VehicleDetailModal } from "../components/VehicleDetailModal";
 import { bikes, scooters, vehicles } from "../data/vehicleData";
@@ -12,11 +11,6 @@ interface HomePageProps {
 
 export function HomePage({ onNavigate }: HomePageProps) {
   const [search, setSearch] = useState("");
-  const [leadModal, setLeadModal] = useState<{
-    open: boolean;
-    vehicle: Vehicle | null;
-    type: "Get Offers" | "Check On-Road Price" | "Book a Test Ride";
-  }>({ open: false, vehicle: null, type: "Get Offers" });
   const [detailVehicle, setDetailVehicle] = useState<Vehicle | null>(null);
   const [emiOpen, setEmiOpen] = useState(false);
 
@@ -147,25 +141,12 @@ export function HomePage({ onNavigate }: HomePageProps) {
           {/* Bikes — Left */}
           <div>
             <h3 className="text-base font-bold text-[#004085] dark:text-blue-400 mb-4 flex items-center gap-2">
-              🏍️ Bikes
+              🏙️ Bikes
             </h3>
             <div className="space-y-4">
               {featuredBikes.map((v, i) => (
                 <div key={v.id} data-ocid={`home.item.${i + 1}`}>
-                  <VehicleCard
-                    vehicle={v}
-                    onGetOffers={(vehicle) =>
-                      setLeadModal({ open: true, vehicle, type: "Get Offers" })
-                    }
-                    onBookRide={(vehicle) =>
-                      setLeadModal({
-                        open: true,
-                        vehicle,
-                        type: "Book a Test Ride",
-                      })
-                    }
-                    onViewDetail={setDetailVehicle}
-                  />
+                  <VehicleCard vehicle={v} onViewDetail={setDetailVehicle} />
                 </div>
               ))}
             </div>
@@ -178,20 +159,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
             <div className="space-y-4">
               {featuredScooters.map((v, i) => (
                 <div key={v.id} data-ocid={`home.item.${i + 4}`}>
-                  <VehicleCard
-                    vehicle={v}
-                    onGetOffers={(vehicle) =>
-                      setLeadModal({ open: true, vehicle, type: "Get Offers" })
-                    }
-                    onBookRide={(vehicle) =>
-                      setLeadModal({
-                        open: true,
-                        vehicle,
-                        type: "Book a Test Ride",
-                      })
-                    }
-                    onViewDetail={setDetailVehicle}
-                  />
+                  <VehicleCard vehicle={v} onViewDetail={setDetailVehicle} />
                 </div>
               ))}
             </div>
@@ -210,17 +178,9 @@ export function HomePage({ onNavigate }: HomePageProps) {
           Browse All Vehicles →
         </button>
         <p className="text-gray-400 dark:text-gray-500 text-sm mt-3">
-          10 real vehicles — Bikes &amp; Scooters
+          20 real vehicles — 10 Bikes &amp; 10 Scooters
         </p>
       </div>
-
-      {/* Lead modal */}
-      <LeadModal
-        open={leadModal.open}
-        onClose={() => setLeadModal((p) => ({ ...p, open: false }))}
-        vehicleName={leadModal.vehicle?.name ?? ""}
-        formType={leadModal.type}
-      />
 
       {/* Detail modal */}
       <VehicleDetailModal

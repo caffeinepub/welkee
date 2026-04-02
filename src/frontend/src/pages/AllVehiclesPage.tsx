@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { LeadModal } from "../components/LeadModal";
 import { VehicleCard } from "../components/VehicleCard";
 import { VehicleDetailModal } from "../components/VehicleDetailModal";
 import { vehicles } from "../data/vehicleData";
@@ -8,11 +7,6 @@ import type { Vehicle } from "../data/vehicleData";
 export function AllVehiclesPage() {
   const [tab, setTab] = useState<"all" | "bike" | "scooter">("all");
   const [search, setSearch] = useState("");
-  const [leadModal, setLeadModal] = useState<{
-    open: boolean;
-    vehicle: Vehicle | null;
-    type: "Get Offers" | "Check On-Road Price" | "Book a Test Ride";
-  }>({ open: false, vehicle: null, type: "Get Offers" });
   const [detailVehicle, setDetailVehicle] = useState<Vehicle | null>(null);
 
   const filtered = vehicles.filter((v) => {
@@ -91,32 +85,13 @@ export function AllVehiclesPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
             {filtered.map((v, i) => (
               <div key={v.id} data-ocid={`vehicles.item.${i + 1}`}>
-                <VehicleCard
-                  vehicle={v}
-                  onGetOffers={(vehicle) =>
-                    setLeadModal({ open: true, vehicle, type: "Get Offers" })
-                  }
-                  onBookRide={(vehicle) =>
-                    setLeadModal({
-                      open: true,
-                      vehicle,
-                      type: "Book a Test Ride",
-                    })
-                  }
-                  onViewDetail={setDetailVehicle}
-                />
+                <VehicleCard vehicle={v} onViewDetail={setDetailVehicle} />
               </div>
             ))}
           </div>
         )}
       </div>
 
-      <LeadModal
-        open={leadModal.open}
-        onClose={() => setLeadModal((p) => ({ ...p, open: false }))}
-        vehicleName={leadModal.vehicle?.name ?? ""}
-        formType={leadModal.type}
-      />
       <VehicleDetailModal
         vehicle={detailVehicle}
         onClose={() => setDetailVehicle(null)}

@@ -4,17 +4,12 @@ import type { Vehicle } from "../data/vehicleData";
 
 interface VehicleCardProps {
   vehicle: Vehicle;
-  onGetOffers: (v: Vehicle) => void;
-  onBookRide: (v: Vehicle) => void;
+  onGetOffers?: (v: Vehicle) => void;
+  onBookRide?: (v: Vehicle) => void;
   onViewDetail: (v: Vehicle) => void;
 }
 
-export function VehicleCard({
-  vehicle,
-  onGetOffers,
-  onBookRide,
-  onViewDetail,
-}: VehicleCardProps) {
+export function VehicleCard({ vehicle, onViewDetail }: VehicleCardProps) {
   const { selectedCity } = useCityContext();
   const [imgError, setImgError] = useState(false);
 
@@ -36,7 +31,7 @@ export function VehicleCard({
       >
         {imgError ? (
           <div className="w-full h-full flex items-center justify-center text-5xl bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-700 dark:to-gray-600">
-            {vehicle.type === "bike" ? "🏍️" : "🛵"}
+            {vehicle.type === "bike" ? "🏙️" : "🛵"}
           </div>
         ) : (
           <img
@@ -125,24 +120,15 @@ export function VehicleCard({
 
         {/* Action buttons */}
         <div className="mt-auto space-y-2">
-          <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={() => onGetOffers(vehicle)}
-              className="flex-1 text-xs font-semibold py-2 px-2 rounded-lg bg-[#FF8225] hover:bg-[#e06010] text-white transition-colors"
-              data-ocid="vehicle.primary_button"
-            >
-              Get Offers
-            </button>
-            <button
-              type="button"
-              onClick={() => onBookRide(vehicle)}
-              className="flex-1 text-xs font-semibold py-2 px-2 rounded-lg bg-[#004085] hover:bg-[#003070] text-white transition-colors"
-              data-ocid="vehicle.secondary_button"
-            >
-              Book Test Ride
-            </button>
-          </div>
+          <a
+            href={vehicle.buyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center justify-center text-sm font-semibold py-2.5 px-3 rounded-lg bg-[#FF8225] hover:bg-[#e06010] text-white transition-colors"
+            data-ocid="vehicle.primary_button"
+          >
+            Buy Now
+          </a>
           <a
             href={`https://wa.me/?text=${whatsappText}`}
             target="_blank"

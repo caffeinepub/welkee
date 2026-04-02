@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { Vehicle } from "../data/vehicleData";
 import { EMIWidget } from "./EMIWidget";
-import { LeadModal } from "./LeadModal";
 
 interface VehicleDetailModalProps {
   vehicle: Vehicle | null;
@@ -12,10 +11,6 @@ export function VehicleDetailModal({
   vehicle,
   onClose,
 }: VehicleDetailModalProps) {
-  const [leadModal, setLeadModal] = useState<{
-    open: boolean;
-    type: "Get Offers" | "Check On-Road Price" | "Book a Test Ride";
-  }>({ open: false, type: "Get Offers" });
   const [imgError, setImgError] = useState(false);
 
   if (!vehicle) return null;
@@ -55,7 +50,7 @@ export function VehicleDetailModal({
             <div className="rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700 h-52">
               {imgError ? (
                 <div className="w-full h-full flex items-center justify-center text-6xl">
-                  {vehicle.type === "bike" ? "🏍️" : "🛵"}
+                  {vehicle.type === "bike" ? "🏙️" : "🛵"}
                 </div>
               ) : (
                 <img
@@ -137,46 +132,28 @@ export function VehicleDetailModal({
             />
 
             {/* CTA buttons */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <button
-                type="button"
-                onClick={() => setLeadModal({ open: true, type: "Get Offers" })}
-                className="bg-[#FF8225] hover:bg-[#e06010] text-white font-bold py-3 rounded-xl transition-colors text-sm"
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <a
+                href={vehicle.buyUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center bg-[#FF8225] hover:bg-[#e06010] text-white font-bold py-3 rounded-xl transition-colors text-sm"
                 data-ocid="vehicle_detail.primary_button"
               >
-                Get Offers
-              </button>
+                Buy Now on Official Site
+              </a>
               <button
                 type="button"
-                onClick={() =>
-                  setLeadModal({ open: true, type: "Check On-Road Price" })
-                }
-                className="border-2 border-[#FF8225] text-[#FF8225] hover:bg-[#FF8225] hover:text-white font-bold py-3 rounded-xl transition-colors text-sm"
-                data-ocid="vehicle_detail.secondary_button"
-              >
-                On-Road Price
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  setLeadModal({ open: true, type: "Book a Test Ride" })
-                }
+                onClick={onClose}
                 className="border-2 border-[#004085] text-[#004085] dark:text-blue-400 hover:bg-[#004085] hover:text-white font-bold py-3 rounded-xl transition-colors text-sm"
-                data-ocid="vehicle_detail.button"
+                data-ocid="vehicle_detail.close_cta"
               >
-                Book Test Ride
+                Close
               </button>
             </div>
           </div>
         </div>
       </div>
-
-      <LeadModal
-        open={leadModal.open}
-        onClose={() => setLeadModal((p) => ({ ...p, open: false }))}
-        vehicleName={vehicle.name}
-        formType={leadModal.type}
-      />
     </>
   );
 }
