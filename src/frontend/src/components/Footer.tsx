@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 interface FooterProps {
   onNavigate: (page: string) => void;
   isSuperAdmin: boolean;
@@ -54,26 +52,10 @@ function SocialIcon({
 }
 
 export function Footer({ onNavigate, isSuperAdmin }: FooterProps) {
-  const [email, setEmail] = useState("");
-  const [subscribed, setSubscribed] = useState(false);
-
-  const handleSubscribe = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email.trim()) {
-      const emails = JSON.parse(
-        localStorage.getItem("welkee_newsletter") || "[]",
-      );
-      emails.push(email.trim());
-      localStorage.setItem("welkee_newsletter", JSON.stringify(emails));
-      setSubscribed(true);
-      setEmail("");
-    }
-  };
-
   return (
     <footer className="bg-[#004085] dark:bg-gray-950 text-white">
       <div className="max-w-7xl mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
           {/* Brand */}
           <div>
             <h3 className="text-xl font-extrabold tracking-wider mb-3">
@@ -120,7 +102,6 @@ export function Footer({ onNavigate, isSuperAdmin }: FooterProps) {
             <ul className="space-y-2">
               {[
                 { label: "About Us", page: "about" },
-                { label: "Contact Us", page: "contact" },
                 { label: "Find Dealers", page: "dealers" },
                 { label: "Latest News", page: "news" },
                 { label: "Privacy Policy", page: "privacy" },
@@ -137,44 +118,6 @@ export function Footer({ onNavigate, isSuperAdmin }: FooterProps) {
                 </li>
               ))}
             </ul>
-          </div>
-
-          {/* Newsletter */}
-          <div>
-            <h4 className="text-base font-bold mb-4 text-white">
-              Subscribe for Offers
-            </h4>
-            <p className="text-blue-200 text-sm mb-4">
-              Get the latest deals and new launches in your inbox.
-            </p>
-            {subscribed ? (
-              <div
-                className="bg-green-600 text-white text-sm font-semibold rounded-lg px-4 py-3"
-                data-ocid="newsletter.success_state"
-              >
-                ✓ You&apos;re subscribed! Thanks.
-              </div>
-            ) : (
-              <form onSubmit={handleSubscribe} className="flex gap-2">
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email"
-                  required
-                  className="flex-1 px-3 py-2 rounded-lg text-sm text-gray-900 bg-white border-0 focus:outline-none focus:ring-2 focus:ring-[#FF8225]"
-                  data-ocid="newsletter.input"
-                  aria-label="Email address for newsletter"
-                />
-                <button
-                  type="submit"
-                  className="bg-[#FF8225] hover:bg-[#e06010] text-white font-semibold text-sm px-4 py-2 rounded-lg transition-colors whitespace-nowrap"
-                  data-ocid="newsletter.submit_button"
-                >
-                  Subscribe
-                </button>
-              </form>
-            )}
           </div>
         </div>
 

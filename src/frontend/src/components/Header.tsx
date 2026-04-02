@@ -15,7 +15,6 @@ const menuItems = [
   { label: "All Vehicles", page: "all-vehicles" },
   { label: "EMI Calculator", page: "emi" },
   { label: "About Us", page: "about" },
-  { label: "Contact Us", page: "contact" },
 ];
 
 export function Header({ currentPage, onNavigate }: HeaderProps) {
