@@ -14,7 +14,6 @@ const menuItems = [
   { label: "Home", page: "home" },
   { label: "All Vehicles", page: "all-vehicles" },
   { label: "EMI Calculator", page: "emi" },
-  { label: "About Us", page: "about" },
 ];
 
 export function Header({ currentPage, onNavigate }: HeaderProps) {
@@ -173,12 +172,7 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
       </div>
 
       {/* Auth Modal */}
-      <AuthModal
-        open={showAuth}
-        onClose={() => setShowAuth(false)}
-        onLogin={auth.login}
-        onRegister={auth.register}
-      />
+      <AuthModal open={showAuth} onClose={() => setShowAuth(false)} />
     </header>
   );
 }

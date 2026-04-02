@@ -121,20 +121,9 @@ export function Footer({ onNavigate, isSuperAdmin }: FooterProps) {
           </div>
         </div>
 
-        <div className="mt-10 pt-6 border-t border-blue-700 flex flex-col md:flex-row items-center justify-between gap-2 text-sm text-blue-300">
-          <span>© {new Date().getFullYear()} WELKEE. All Rights Reserved.</span>
+        <div className="mt-10 pt-6 border-t border-blue-700 flex flex-col items-center justify-center gap-2 text-sm text-blue-300">
           <div className="flex items-center gap-4">
-            <span>
-              Built with ❤️ using{" "}
-              <a
-                href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:text-white"
-              >
-                caffeine.ai
-              </a>
-            </span>
+            <span>© 2026 WELKEE. All Rights Reserved.</span>
             {isSuperAdmin && (
               <button
                 type="button"

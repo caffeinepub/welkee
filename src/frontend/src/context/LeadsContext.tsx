@@ -1,4 +1,5 @@
-import { createContext, useContext, useEffect, useState } from "react";
+// LeadsContext is no longer used — gutted to prevent compile errors
+import type { ReactNode } from "react";
 
 export interface Lead {
   id: string;
@@ -16,44 +17,14 @@ interface LeadsContextValue {
   clearLeads: () => void;
 }
 
-const LeadsContext = createContext<LeadsContextValue>({
-  leads: [],
-  addLead: () => {},
-  clearLeads: () => {},
-});
-
-export function LeadsProvider({ children }: { children: React.ReactNode }) {
-  const [leads, setLeads] = useState<Lead[]>(() => {
-    try {
-      const stored = localStorage.getItem("welkee_leads");
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
-
-  useEffect(() => {
-    localStorage.setItem("welkee_leads", JSON.stringify(leads));
-  }, [leads]);
-
-  const addLead = (lead: Omit<Lead, "id" | "submittedAt">) => {
-    const newLead: Lead = {
-      ...lead,
-      id: Date.now().toString(),
-      submittedAt: new Date().toLocaleString("en-IN"),
-    };
-    setLeads((prev) => [newLead, ...prev]);
-  };
-
-  const clearLeads = () => setLeads([]);
-
-  return (
-    <LeadsContext.Provider value={{ leads, addLead, clearLeads }}>
-      {children}
-    </LeadsContext.Provider>
-  );
+export function LeadsProvider({ children }: { children: ReactNode }) {
+  return <>{children}</>;
 }
 
-export function useLeads() {
-  return useContext(LeadsContext);
+export function useLeads(): LeadsContextValue {
+  return {
+    leads: [],
+    addLead: () => {},
+    clearLeads: () => {},
+  };
 }

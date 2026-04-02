@@ -1,43 +1,52 @@
-# Welkee — Lead Capture & Dashboard Privacy Fix
+# Welkee — Unified Auth & Lead System (Stable Version)
 
 ## Current State
 
-- **MobileLeadPopup** (MobileLeadPopup.tsx): Already exists. Shows when Buy Now is clicked. Has a 'Skip & Continue' button that allows users to bypass phone capture and go directly to brand URL.
-- **WhatsApp button** (VehicleCard.tsx): `handleWhatsAppClick` only records a click stat, then immediately opens the WhatsApp share URL — no phone capture popup shown.
-- **AdminDashboard** (AdminDashboard.tsx): Uses a PIN of "7860". Only shows one table (old Leads table with name/phone/city/bikeName/formType/timestamp). Does NOT show Registered Users table. Does NOT show separate clean phone leads table. Currently has Vehicle Popularity data built in via clickStats utility.
-- **Footer Admin button**: Already correctly gated by `isSuperAdmin` prop.
-- **AuthContext**: Already correctly checks `mohdali7z7z00@gmail.com` / `20242025786786` for SUPER ADMIN.
-- **clickStats.ts**: Has both click tracking and phone lead utilities (`getPhoneLeads`, `addPhoneLead`).
-- **Admin PIN**: Currently set to "7860" — needs updating to "20242025786786".
+- **Auth**: Email/Password login/signup via `AuthContext.tsx`. Signup only requires email + password (no mobile number). Users stored in localStorage (`welkee_users`). Sessions stored in sessionStorage (auto-logout on tab close + 30min inactivity timer). Owner credentials (mohdali7z7z00@gmail.com / 20242025786786) grant SUPER_ADMIN status.
+- **Lead capture**: When any user (guest or logged-in) clicks 'Buy Now' or 'WhatsApp Share', `MobileLeadPopup` fires asking for a phone number. Phone leads stored separately in localStorage (`welkee_phone_leads`). No link between phone leads and user accounts.
+- **Admin Dashboard** (`AdminDashboard.tsx`): Two separate tables — "Registered Users" (email + signup date) and "Customer Leads" (phone + time). PIN: 20242025786786. Footer Admin button visible only to SUPER_ADMIN.
+- **Flow problem**: Guests can browse freely but are hit with a phone number popup on every Buy Now / WhatsApp click with no auth gate. Logged-in users also see the phone popup every time.
 
 ## Requested Changes (Diff)
 
 ### Add
-- Show MobileLeadPopup when WhatsApp button is clicked too (before opening WhatsApp share link)
-- Registered Users table in AdminDashboard: columns = Email Address, Date of Signup
-- Phone Leads table in AdminDashboard: columns = Customer Phone Number, Time of Inquiry
-- Auth system already stores users in localStorage `welkee_users` — add `signupDate` field to stored user data
+- **Mobile number field to signup form**: Signup requires Email + Password + Mobile Number. Mobile number saved alongside email in the user record.
+- **Auth gate on action buttons**: When a guest (not logged in) clicks 'Buy Now' or 'WhatsApp Share' on any VehicleCard or VehicleDetailModal, show a Login/Signup modal instead of the phone popup. After successful login/signup, immediately execute the original action (open brand URL or WhatsApp link).
+- **Seamless post-login redirect**: Once logged in, Buy Now and WhatsApp buttons open the official brand link directly — no additional popups.
+- **New unified Admin table** — "Registered Leads": columns: # | Email Address | Linked Mobile Number | Signup Date. Replace the two old tables with this one.
 
 ### Modify
-- **MobileLeadPopup**: Make it MANDATORY — remove the 'Skip & Continue' button and backdrop/close button that allow bypassing without entering a number. The only way to proceed is entering a valid phone number and submitting.
-- **MobileLeadPopup**: Update title/text to match: "Enter your Mobile Number to get the Official Brand Link & Special Offers."
-- **VehicleCard**: WhatsApp button must now show MobileLeadPopup (storing phone lead) BEFORE opening the WhatsApp share URL
-- **AdminDashboard**: Replace existing single table with two clean tables. Remove Vehicle Popularity section entirely.
-  - Table 1 (Users): Email Address | Date of Signup
-  - Table 2 (Leads): Customer Phone Number | Time of Inquiry
-- **AdminDashboard**: Update PIN from "7860" to "20242025786786" (but maxLength on input may need increasing)
-- **AuthContext**: When a new user registers, store `signupDate` (ISO string or locale string) alongside email/password in localStorage
+- **AuthContext**: Add `mobile` field to `StoredUser`. `register()` function now accepts `email, password, mobile`. Save mobile linked to email.
+- **AuthModal / SignupForm**: Add a mobile number input field (10-digit Indian number). Validate format.
+- **VehicleCard**: Remove `MobileLeadPopup` from Buy Now / WhatsApp handlers. Instead check `user` from AuthContext — if null, show AuthModal with `pendingAction` (buy or whatsapp + vehicle info). If logged in, directly open the brand/WhatsApp URL.
+- **VehicleDetailModal**: Same change as VehicleCard — replace phone popup with auth gate.
+- **AdminDashboard**: Replace two-table layout with one "Registered Leads" table: columns # | Email Address | Linked Mobile Number | Signup Date. Read from `welkee_users` localStorage key.
+- **Footer Admin button**: Unchanged — visible only to SUPER_ADMIN.
+- **Session security**: Unchanged — sessionStorage + 30min inactivity.
+- **Footer branding**: Unchanged — no Caffeine.ai watermark, only "© 2026 WELKEE. All Rights Reserved."
 
 ### Remove
-- 'Skip & Continue without saving' button from MobileLeadPopup
-- Backdrop click-to-dismiss (cancel) from MobileLeadPopup
-- Close X button from MobileLeadPopup
-- Vehicle Popularity table/section from AdminDashboard
-- Old leads table format (name/city/formType columns) — replaced by the two clean tables
+- `MobileLeadPopup` component — no longer needed (replace with auth gate)
+- `LeadsContext` (welkee_leads localStorage) — no longer needed
+- `clickStats.ts` (welkee_phone_leads) — no longer needed
+- "Customer Leads" table from AdminDashboard
+- "Registered Users" table from AdminDashboard (replaced by unified Registered Leads table)
+- Any separate phone lead storage logic
 
 ## Implementation Plan
 
-1. **MobileLeadPopup.tsx** — Remove skip/cancel/close functionality. Make phone number submission mandatory. Update heading text. After submit, open either brandUrl (Buy Now flow) or whatsappUrl (WhatsApp flow) — accept an optional `whatsappUrl` prop to know which to open.
-2. **VehicleCard.tsx** — Add `showWhatsAppLeadPopup` state. On WhatsApp button click, show MobileLeadPopup with whatsappUrl set. After number submitted, open WhatsApp share URL.
-3. **AuthContext.tsx** — Add `signupDate` to StoredUser type. Save `new Date().toLocaleString('en-IN')` when registering a new user.
-4. **AdminDashboard.tsx** — Update PIN to "20242025786786". Remove old leads table and Vehicle Popularity. Add Table 1 reading from `welkee_users` localStorage (email + signupDate). Add Table 2 reading from `welkee_phone_leads` localStorage (phone + timestamp formatted). Increase PIN input maxLength to 14.
+1. **Update `AuthContext.tsx`**: Add `mobile: string` to `StoredUser`. Update `register(email, password, mobile)` signature. Save mobile alongside email/password/signupDate.
+
+2. **Update `AuthModal.tsx`**: Add mobile number input to signup form. Validate 10-digit Indian number. Pass mobile to `register()`. Add optional `onSuccess` callback prop and `pendingAction` prop so calling components can trigger an action immediately after successful auth.
+
+3. **Update `VehicleCard.tsx`**: Replace `showLeadPopup`/`showWhatsAppPopup` states + `MobileLeadPopup` usage with auth-gate logic. If `user` is null → show `AuthModal` with a `pendingAction`. If user is logged in → directly `window.open(brandUrl)` or open WhatsApp link.
+
+4. **Update `VehicleDetailModal.tsx`**: Same auth-gate pattern as VehicleCard.
+
+5. **Update `AdminDashboard.tsx`**: Remove two-table layout. Add one table "Registered Leads" reading from `welkee_users` with columns: # | Email Address | Linked Mobile Number | Signup Date.
+
+6. **Delete** `MobileLeadPopup.tsx`, `LeadsContext.tsx`, `clickStats.ts` (or gut their contents to avoid import errors — safer to empty them if imports exist elsewhere).
+
+7. **Update `App.tsx`**: Remove `LeadsProvider` wrapper if LeadsContext is removed.
+
+8. **Keep unchanged**: All 20 vehicle data/images, Footer, Header, ThemeContext, CityContext, CompareContext, all pages (About, EMI, Compare, Dealers, News, Privacy), Day/Night mode, city selector, 3-dot menu.

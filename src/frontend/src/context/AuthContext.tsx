@@ -16,6 +16,7 @@ interface StoredUser {
   id: number;
   email: string;
   password: string;
+  mobile: string;
   signupDate: string;
 }
 
@@ -23,7 +24,11 @@ interface AuthContextValue {
   user: AuthUser | null;
   isSuperAdmin: boolean;
   login: (email: string, password: string) => Promise<string | null>;
-  register: (email: string, password: string) => Promise<string | null>;
+  register: (
+    email: string,
+    password: string,
+    mobile: string,
+  ) => Promise<string | null>;
   logout: () => void;
 }
 
@@ -152,7 +157,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const register = useCallback(
-    async (email: string, password: string): Promise<string | null> => {
+    async (
+      email: string,
+      password: string,
+      mobile: string,
+    ): Promise<string | null> => {
       const normalizedEmail = email.toLowerCase().trim();
       const users = getStoredUsers();
       const exists = users.some(
@@ -167,6 +176,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         id: Date.now(),
         email: email.trim(),
         password,
+        mobile: mobile.replace(/\D/g, ""),
         signupDate: new Date().toLocaleString("en-IN"),
       };
       users.push(newUser);

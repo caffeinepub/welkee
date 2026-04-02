@@ -1,13 +1,11 @@
 import { useState } from "react";
-import { type PhoneLead, getPhoneLeads } from "../utils/clickStats";
 
 const ADMIN_PIN = "20242025786786";
-
-type TabId = "users" | "leads";
 
 interface StoredUser {
   id: number;
   email: string;
+  mobile?: string;
   signupDate?: string;
 }
 
@@ -20,51 +18,16 @@ function getRegisteredUsers(): StoredUser[] {
   }
 }
 
-function exportAllCSV(users: StoredUser[], phoneLeads: PhoneLead[]) {
-  const rows = [
-    ["=== REGISTERED USERS ==="],
-    ["#", "Email", "Signup Date"],
-    ...users.map((u, i) => [
-      String(i + 1),
-      u.email,
-      u.signupDate ?? (u.id ? new Date(u.id).toLocaleString("en-IN") : "—"),
-    ]),
-    [""],
-    ["=== CUSTOMER LEADS ==="],
-    ["#", "Phone Number", "Vehicle", "Date / Time"],
-    ...phoneLeads
-      .slice()
-      .reverse()
-      .map((l, i) => [
-        String(i + 1),
-        `+91 ${l.phone}`,
-        l.vehicleName,
-        new Date(l.timestamp).toLocaleString("en-IN"),
-      ]),
-  ];
-
-  const csv = rows.map((row) => row.map((c) => `"${c}"`).join(",")).join("\n");
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `welkee-dashboard-${Date.now()}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
 export function AdminPage() {
   const [pin, setPin] = useState("");
   const [unlocked, setUnlocked] = useState(false);
   const [pinError, setPinError] = useState("");
-  const [activeTab, setActiveTab] = useState<TabId>("users");
   const [refreshKey, setRefreshKey] = useState(0);
 
-  const registeredUsers = unlocked ? getRegisteredUsers() : [];
-  const phoneLeads = unlocked ? getPhoneLeads() : [];
-
-  // suppress lint
+  // Suppress unused-variable lint for refreshKey (used only to trigger re-read)
   void refreshKey;
+
+  const registeredUsers = unlocked ? getRegisteredUsers() : [];
 
   const handlePinSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -125,22 +88,6 @@ export function AdminPage() {
     );
   }
 
-  const tabs: Array<{ id: TabId; label: string; count: number; icon: string }> =
-    [
-      {
-        id: "users",
-        label: "Registered Users",
-        count: registeredUsers.length,
-        icon: "👥",
-      },
-      {
-        id: "leads",
-        label: "Customer Leads",
-        count: phoneLeads.length,
-        icon: "📱",
-      },
-    ];
-
   return (
     <main
       className="bg-gray-900 min-h-screen text-white"
@@ -152,7 +99,7 @@ export function AdminPage() {
           <div>
             <h1 className="text-2xl font-extrabold">Admin Dashboard</h1>
             <p className="text-gray-400 text-sm mt-1">
-              Lead management &amp; registered users
+              Welkee — Registered Leads
             </p>
           </div>
           <div className="flex gap-3">
@@ -178,180 +125,90 @@ export function AdminPage() {
               </svg>
               Refresh Data
             </button>
-            <button
-              type="button"
-              onClick={() => exportAllCSV(registeredUsers, phoneLeads)}
-              className="bg-green-600 hover:bg-green-700 text-white font-semibold text-sm px-4 py-2 rounded-lg transition-colors"
-              data-ocid="admin.export_button"
-            >
-              Export CSV
-            </button>
           </div>
         </div>
 
-        {/* Stats strip — 2 boxes only */}
-        <div className="grid grid-cols-2 gap-4 mb-8">
-          {tabs.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setActiveTab(t.id)}
-              className={`rounded-xl p-4 text-left border transition-all ${
-                activeTab === t.id
-                  ? "bg-[#004085] border-blue-500"
-                  : "bg-gray-800 border-gray-700 hover:bg-gray-750"
-              }`}
-              data-ocid={`admin.${t.id}.tab`}
-            >
-              <div className="text-2xl mb-1">{t.icon}</div>
-              <div className="text-2xl font-extrabold">{t.count}</div>
-              <div className="text-xs text-gray-400 mt-0.5">{t.label}</div>
-            </button>
-          ))}
+        {/* Summary stat */}
+        <div className="mb-8">
+          <div className="bg-[#004085] rounded-xl p-5 inline-flex flex-col gap-1">
+            <div className="text-3xl font-extrabold">
+              {registeredUsers.length}
+            </div>
+            <div className="text-sm text-blue-200">Total Registered Leads</div>
+          </div>
         </div>
 
-        {/* Tab buttons — 2 tabs only */}
-        <div className="flex gap-2 mb-6 border-b border-gray-700 pb-0">
-          {tabs.map((t) => (
-            <button
-              key={t.id}
-              type="button"
-              onClick={() => setActiveTab(t.id)}
-              className={`px-4 py-2.5 text-sm font-semibold rounded-t-lg transition-colors ${
-                activeTab === t.id
-                  ? "bg-gray-800 text-white border border-gray-700 border-b-gray-800"
-                  : "text-gray-400 hover:text-white"
-              }`}
-              data-ocid={`admin.${t.id}.tab`}
+        {/* Registered Leads Table */}
+        <section data-ocid="admin.leads.panel">
+          <h2 className="text-lg font-bold mb-4 text-white">
+            Registered Leads
+          </h2>
+          {registeredUsers.length === 0 ? (
+            <div
+              className="text-center py-16 bg-gray-800 rounded-2xl border border-gray-700"
+              data-ocid="admin.leads.empty_state"
             >
-              {t.icon} {t.label}
-            </button>
-          ))}
-        </div>
-
-        {/* TABLE 1: Registered Users */}
-        {activeTab === "users" && (
-          <section data-ocid="admin.users.panel">
-            <h2 className="text-lg font-bold mb-4 text-white">
-              👥 Registered Users
-            </h2>
-            {registeredUsers.length === 0 ? (
-              <div
-                className="text-center py-16 bg-gray-800 rounded-2xl border border-gray-700"
-                data-ocid="admin.users.empty_state"
-              >
-                <p className="text-3xl mb-3">📭</p>
-                <p className="text-gray-400">No registered users yet.</p>
-              </div>
-            ) : (
-              <div
-                className="overflow-x-auto rounded-2xl border border-gray-700"
-                data-ocid="admin.users.table"
-              >
-                <table className="w-full">
-                  <thead className="bg-gray-800">
-                    <tr>
-                      {["#", "Email Address", "Date of Signup"].map((h) => (
-                        <th
-                          key={h}
-                          className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wide"
-                        >
-                          {h}
-                        </th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {registeredUsers.map((u, i) => (
-                      <tr
-                        key={u.id}
-                        className="border-t border-gray-700 hover:bg-gray-800 transition-colors"
-                        data-ocid={`admin.users.item.${i + 1}`}
+              <p className="text-3xl mb-3">📭</p>
+              <p className="text-gray-400">No registered leads yet.</p>
+              <p className="text-gray-600 text-sm mt-1">
+                Users will appear here after signing up.
+              </p>
+            </div>
+          ) : (
+            <div
+              className="overflow-x-auto rounded-2xl border border-gray-700"
+              data-ocid="admin.leads.table"
+            >
+              <table className="w-full">
+                <thead className="bg-gray-800">
+                  <tr>
+                    {[
+                      "#",
+                      "Email Address",
+                      "Linked Mobile Number",
+                      "Signup Date",
+                    ].map((h) => (
+                      <th
+                        key={h}
+                        className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wide"
                       >
-                        <td className="py-3 px-4 text-sm text-gray-500">
-                          {i + 1}
-                        </td>
-                        <td className="py-3 px-4 text-sm font-medium">
-                          {u.email}
-                        </td>
-                        <td className="py-3 px-4 text-xs text-gray-400">
-                          {u.signupDate ??
-                            (u.id
-                              ? new Date(u.id).toLocaleString("en-IN")
-                              : "—")}
-                        </td>
-                      </tr>
+                        {h}
+                      </th>
                     ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
-        )}
-
-        {/* TABLE 2: Customer Leads */}
-        {activeTab === "leads" && (
-          <section data-ocid="admin.leads.panel">
-            <h2 className="text-lg font-bold mb-4 text-white">
-              📱 Customer Leads — Phone Numbers
-            </h2>
-            {phoneLeads.length === 0 ? (
-              <div
-                className="text-center py-16 bg-gray-800 rounded-2xl border border-gray-700"
-                data-ocid="admin.leads.empty_state"
-              >
-                <p className="text-3xl mb-3">📭</p>
-                <p className="text-gray-400">No leads captured yet.</p>
-                <p className="text-gray-600 text-sm mt-1">
-                  Phone numbers will appear here after users click Buy Now.
-                </p>
-              </div>
-            ) : (
-              <div
-                className="overflow-x-auto rounded-2xl border border-gray-700"
-                data-ocid="admin.leads.table"
-              >
-                <table className="w-full">
-                  <thead className="bg-gray-800">
-                    <tr>
-                      {["#", "Phone Number", "Time of Inquiry"].map((h) => (
-                        <th
-                          key={h}
-                          className="text-left py-3 px-4 text-xs font-semibold text-gray-400 uppercase tracking-wide"
-                        >
-                          {h}
-                        </th>
-                      ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {registeredUsers.map((u, i) => (
+                    <tr
+                      key={u.id}
+                      className="border-t border-gray-700 hover:bg-gray-800 transition-colors"
+                      data-ocid={`admin.leads.item.${i + 1}`}
+                    >
+                      <td className="py-3 px-4 text-sm text-gray-500">
+                        {i + 1}
+                      </td>
+                      <td className="py-3 px-4 text-sm font-medium">
+                        {u.email}
+                      </td>
+                      <td className="py-3 px-4 text-sm font-mono">
+                        {u.mobile ? `+91 ${u.mobile}` : "—"}
+                      </td>
+                      <td className="py-3 px-4 text-xs text-gray-400">
+                        {u.signupDate ??
+                          (u.id ? new Date(u.id).toLocaleString("en-IN") : "—")}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {phoneLeads
-                      .slice()
-                      .reverse()
-                      .map((lead, i) => (
-                        <tr
-                          key={lead.id}
-                          className="border-t border-gray-700 hover:bg-gray-800 transition-colors"
-                          data-ocid={`admin.leads.item.${i + 1}`}
-                        >
-                          <td className="py-3 px-4 text-sm text-gray-500">
-                            {i + 1}
-                          </td>
-                          <td className="py-3 px-4 text-sm font-semibold font-mono">
-                            +91 {lead.phone}
-                          </td>
-                          <td className="py-3 px-4 text-xs text-gray-400">
-                            {new Date(lead.timestamp).toLocaleString("en-IN")}
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </section>
-        )}
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
       </div>
+
+      <footer className="text-center text-xs text-gray-600 py-6 mt-8 border-t border-gray-800">
+        © {new Date().getFullYear()} Welkee Admin Panel.
+      </footer>
     </main>
   );
 }

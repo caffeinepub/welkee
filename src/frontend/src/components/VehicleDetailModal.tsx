@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 import type { Vehicle } from "../data/vehicleData";
+import { AuthModal } from "./AuthModal";
 import { EMIWidget } from "./EMIWidget";
-import { MobileLeadPopup } from "./MobileLeadPopup";
 
 interface VehicleDetailModalProps {
   vehicle: Vehicle | null;
@@ -12,11 +13,46 @@ export function VehicleDetailModal({
   vehicle,
   onClose,
 }: VehicleDetailModalProps) {
+  const { user } = useAuth();
   const [imgError, setImgError] = useState(false);
-  const [showLeadPopup, setShowLeadPopup] = useState(false);
-  const [showWhatsAppPopup, setShowWhatsAppPopup] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
 
   if (!vehicle) return null;
+
+  const whatsappText = encodeURIComponent(
+    `Check out ${vehicle.brand} ${vehicle.name} on WELKEE! https://welkee.icp0.io`,
+  );
+
+  const openUrl = (url: string) => {
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const handleBuyNow = () => {
+    if (user) {
+      openUrl(vehicle.buyUrl);
+    } else {
+      setPendingAction(() => () => openUrl(vehicle.buyUrl));
+      setShowAuthModal(true);
+    }
+  };
+
+  const handleWhatsApp = () => {
+    const waUrl = `https://wa.me/?text=${whatsappText}`;
+    if (user) {
+      openUrl(waUrl);
+    } else {
+      setPendingAction(() => () => openUrl(waUrl));
+      setShowAuthModal(true);
+    }
+  };
+
+  const handleAuthSuccess = () => {
+    if (pendingAction) {
+      pendingAction();
+      setPendingAction(null);
+    }
+  };
 
   return (
     <>
@@ -138,19 +174,19 @@ export function VehicleDetailModal({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <button
                 type="button"
-                onClick={() => setShowLeadPopup(true)}
+                onClick={handleBuyNow}
                 className="flex items-center justify-center bg-[#FF8225] hover:bg-[#e06010] text-white font-bold py-3 rounded-xl transition-colors text-sm"
                 data-ocid="vehicle_detail.primary_button"
               >
-                Buy Now on Official Site
+                {user ? "Buy Now on Official Site" : "🔒 Login to Buy"}
               </button>
               <button
                 type="button"
-                onClick={() => setShowWhatsAppPopup(true)}
+                onClick={handleWhatsApp}
                 className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white font-bold py-3 rounded-xl transition-colors text-sm"
-                data-ocid="vehicle_detail.whatsapp_button"
+                data-ocid="vehicle_detail.secondary_button"
               >
-                WhatsApp Share
+                {user ? "WhatsApp Share" : "🔒 Login to Share"}
               </button>
               <button
                 type="button"
@@ -165,21 +201,15 @@ export function VehicleDetailModal({
         </div>
       </div>
 
-      {showLeadPopup && (
-        <MobileLeadPopup
-          vehicleName={vehicle.name}
-          vehicleId={vehicle.id}
-          brandUrl={vehicle.buyUrl}
-          onClose={() => setShowLeadPopup(false)}
-        />
-      )}
-      {showWhatsAppPopup && (
-        <MobileLeadPopup
-          vehicleName={vehicle.name}
-          vehicleId={vehicle.id}
-          brandUrl=""
-          whatsappUrl={`https://wa.me/?text=${encodeURIComponent(`Check out ${vehicle.brand} ${vehicle.name} on WELKEE! https://welkee.icp0.io`)}`}
-          onClose={() => setShowWhatsAppPopup(false)}
+      {showAuthModal && (
+        <AuthModal
+          open={showAuthModal}
+          onClose={() => {
+            setShowAuthModal(false);
+            setPendingAction(null);
+          }}
+          onSuccess={handleAuthSuccess}
+          defaultTab="login"
         />
       )}
     </>

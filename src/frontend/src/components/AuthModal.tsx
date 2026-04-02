@@ -9,20 +9,23 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 interface AuthModalProps {
   open: boolean;
   onClose: () => void;
-  onLogin: (email: string, password: string) => Promise<string | null>;
-  onRegister: (email: string, password: string) => Promise<string | null>;
+  onSuccess?: () => void;
+  defaultTab?: "login" | "signup";
 }
 
 export function AuthModal({
   open,
   onClose,
-  onLogin,
-  onRegister,
+  onSuccess,
+  defaultTab = "login",
 }: AuthModalProps) {
+  const { login, register } = useAuth();
+
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [loginError, setLoginError] = useState("");
@@ -31,6 +34,7 @@ export function AuthModal({
   const [regEmail, setRegEmail] = useState("");
   const [regPassword, setRegPassword] = useState("");
   const [regConfirm, setRegConfirm] = useState("");
+  const [regMobile, setRegMobile] = useState("");
   const [regError, setRegError] = useState("");
   const [regLoading, setRegLoading] = useState(false);
 
@@ -46,11 +50,12 @@ export function AuthModal({
       return;
     }
     setLoginLoading(true);
-    const err = await onLogin(loginEmail, loginPassword);
+    const err = await login(loginEmail, loginPassword);
     setLoginLoading(false);
     if (err) {
       setLoginError(err);
     } else {
+      onSuccess?.();
       onClose();
     }
   }
@@ -74,12 +79,18 @@ export function AuthModal({
       setRegError("Password must be at least 6 characters");
       return;
     }
+    const mobileDigits = regMobile.replace(/\D/g, "");
+    if (mobileDigits.length !== 10) {
+      setRegError("Please enter a valid 10-digit mobile number.");
+      return;
+    }
     setRegLoading(true);
-    const err = await onRegister(regEmail, regPassword);
+    const err = await register(regEmail, regPassword, mobileDigits);
     setRegLoading(false);
     if (err) {
       setRegError(err);
     } else {
+      onSuccess?.();
       onClose();
     }
   }
@@ -91,12 +102,12 @@ export function AuthModal({
           <DialogTitle className="text-welkee-blue text-xl">
             Welcome to Welkee
           </DialogTitle>
-          <p className="text-sm text-gray-500 mt-1">
-            Sign in to save your favourite bikes and get personalised offers.
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            Sign in to access Buy Now and WhatsApp Share features.
           </p>
         </DialogHeader>
 
-        <Tabs defaultValue="login" className="mt-2">
+        <Tabs defaultValue={defaultTab} className="mt-2">
           <TabsList className="w-full" data-ocid="auth.tab">
             <TabsTrigger value="login" className="flex-1" data-ocid="auth.tab">
               Login
@@ -112,7 +123,7 @@ export function AuthModal({
               <div>
                 <label
                   htmlFor="login-email"
-                  className="text-sm font-medium text-gray-700 mb-1 block"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block"
                 >
                   Email
                 </label>
@@ -129,7 +140,7 @@ export function AuthModal({
               <div>
                 <label
                   htmlFor="login-password"
-                  className="text-sm font-medium text-gray-700 mb-1 block"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block"
                 >
                   Password
                 </label>
@@ -175,7 +186,7 @@ export function AuthModal({
               <div>
                 <label
                   htmlFor="reg-email"
-                  className="text-sm font-medium text-gray-700 mb-1 block"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block"
                 >
                   Email
                 </label>
@@ -192,7 +203,7 @@ export function AuthModal({
               <div>
                 <label
                   htmlFor="reg-password"
-                  className="text-sm font-medium text-gray-700 mb-1 block"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block"
                 >
                   Password
                 </label>
@@ -209,7 +220,7 @@ export function AuthModal({
               <div>
                 <label
                   htmlFor="reg-confirm"
-                  className="text-sm font-medium text-gray-700 mb-1 block"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block"
                 >
                   Confirm Password
                 </label>
@@ -222,6 +233,35 @@ export function AuthModal({
                   autoComplete="new-password"
                   data-ocid="auth.input"
                 />
+              </div>
+              <div>
+                <label
+                  htmlFor="reg-mobile"
+                  className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 block"
+                >
+                  Mobile Number
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400 font-medium select-none pointer-events-none">
+                    +91
+                  </span>
+                  <Input
+                    id="reg-mobile"
+                    type="tel"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    placeholder="10-digit mobile number"
+                    value={regMobile}
+                    onChange={(e) =>
+                      setRegMobile(
+                        e.target.value.replace(/\D/g, "").slice(0, 10),
+                      )
+                    }
+                    autoComplete="tel"
+                    className="pl-12"
+                    data-ocid="auth.input"
+                  />
+                </div>
               </div>
               {regError && (
                 <p

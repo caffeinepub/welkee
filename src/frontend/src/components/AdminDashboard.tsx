@@ -18,15 +18,8 @@ interface StoredUser {
   id: number;
   email: string;
   password: string;
+  mobile?: string;
   signupDate?: string;
-}
-
-interface PhoneLead {
-  id: string;
-  phone: string;
-  vehicleName: string;
-  vehicleId: string;
-  timestamp: number;
 }
 
 function PinGate({ onUnlock }: { onUnlock: () => void }) {
@@ -117,7 +110,6 @@ function PinGate({ onUnlock }: { onUnlock: () => void }) {
 export function AdminDashboard() {
   const [unlocked, setUnlocked] = useState(false);
   const [users, setUsers] = useState<StoredUser[]>([]);
-  const [phoneLeads, setPhoneLeads] = useState<PhoneLead[]>([]);
 
   const loadData = useCallback(() => {
     try {
@@ -125,12 +117,6 @@ export function AdminDashboard() {
       setUsers(rawUsers ? (JSON.parse(rawUsers) as StoredUser[]) : []);
     } catch {
       setUsers([]);
-    }
-    try {
-      const rawLeads = localStorage.getItem("welkee_phone_leads");
-      setPhoneLeads(rawLeads ? (JSON.parse(rawLeads) as PhoneLead[]) : []);
-    } catch {
-      setPhoneLeads([]);
     }
   }, []);
 
@@ -143,8 +129,6 @@ export function AdminDashboard() {
   if (!unlocked) {
     return <PinGate onUnlock={() => setUnlocked(true)} />;
   }
-
-  const sortedLeads = [...phoneLeads].reverse();
 
   return (
     <div className="min-h-screen bg-gray-50" data-ocid="admin.page">
@@ -168,7 +152,7 @@ export function AdminDashboard() {
               data-ocid="admin.panel"
             >
               <Users size={14} className="mr-1.5" />
-              {phoneLeads.length} Leads
+              {users.length} Registered Leads
             </Badge>
             <Button
               variant="outline"
@@ -185,91 +169,27 @@ export function AdminDashboard() {
       </header>
 
       {/* Main content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
-        {/* Table 1 — Registered Users */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Registered Leads Table */}
         <section>
           <div className="mb-4">
             <h2 className="text-xl font-bold text-gray-900">
-              Registered Users
+              Registered Leads
             </h2>
             <p className="text-gray-500 mt-1 text-sm">
-              All users who have created an account on Welkee.
+              All users who have created an account on Welkee, with their linked
+              mobile numbers.
             </p>
           </div>
 
           {users.length === 0 ? (
             <div
               className="flex flex-col items-center justify-center py-16 text-gray-400 bg-white rounded-xl border border-gray-200"
-              data-ocid="admin.users.empty_state"
-            >
-              <Users size={40} className="mb-3 text-gray-300" />
-              <p className="text-base font-medium text-gray-500">
-                No registered users yet.
-              </p>
-            </div>
-          ) : (
-            <div
-              className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden"
-              data-ocid="admin.users.table"
-            >
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="bg-gray-50">
-                      <TableHead className="w-12 font-semibold text-gray-700">
-                        #
-                      </TableHead>
-                      <TableHead className="font-semibold text-gray-700">
-                        Email Address
-                      </TableHead>
-                      <TableHead className="font-semibold text-gray-700">
-                        Date of Signup
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {users.map((u, idx) => (
-                      <TableRow
-                        key={u.id}
-                        className={idx % 2 === 0 ? "bg-white" : "bg-gray-50/60"}
-                        data-ocid={`admin.users.row.item.${idx + 1}`}
-                      >
-                        <TableCell className="text-gray-400 text-sm">
-                          {idx + 1}
-                        </TableCell>
-                        <TableCell className="font-medium text-gray-900">
-                          {u.email}
-                        </TableCell>
-                        <TableCell className="text-gray-600 text-sm">
-                          {u.signupDate ?? "—"}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
-          )}
-        </section>
-
-        {/* Table 2 — Customer Leads */}
-        <section>
-          <div className="mb-4">
-            <h2 className="text-xl font-bold text-gray-900">Customer Leads</h2>
-            <p className="text-gray-500 mt-1 text-sm">
-              Phone numbers collected when users click Buy Now or WhatsApp
-              Share.
-            </p>
-          </div>
-
-          {sortedLeads.length === 0 ? (
-            <div
-              className="flex flex-col items-center justify-center py-16 text-gray-400 bg-white rounded-xl border border-gray-200"
               data-ocid="admin.leads.empty_state"
             >
               <Users size={40} className="mb-3 text-gray-300" />
               <p className="text-base font-medium text-gray-500">
-                No leads captured yet.
+                No registered leads yet.
               </p>
             </div>
           ) : (
@@ -285,28 +205,34 @@ export function AdminDashboard() {
                         #
                       </TableHead>
                       <TableHead className="font-semibold text-gray-700">
-                        Customer Phone Number
+                        Email Address
                       </TableHead>
                       <TableHead className="font-semibold text-gray-700">
-                        Time of Inquiry
+                        Linked Mobile Number
+                      </TableHead>
+                      <TableHead className="font-semibold text-gray-700">
+                        Signup Date
                       </TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {sortedLeads.map((lead, idx) => (
+                    {users.map((u, idx) => (
                       <TableRow
-                        key={lead.id}
+                        key={u.id}
                         className={idx % 2 === 0 ? "bg-white" : "bg-gray-50/60"}
                         data-ocid={`admin.leads.row.item.${idx + 1}`}
                       >
                         <TableCell className="text-gray-400 text-sm">
                           {idx + 1}
                         </TableCell>
-                        <TableCell className="font-mono font-semibold text-gray-900">
-                          +91 {lead.phone}
+                        <TableCell className="font-medium text-gray-900">
+                          {u.email}
                         </TableCell>
-                        <TableCell className="text-gray-600 text-sm whitespace-nowrap">
-                          {new Date(lead.timestamp).toLocaleString("en-IN")}
+                        <TableCell className="font-mono text-gray-700">
+                          {u.mobile ? `+91 ${u.mobile}` : "—"}
+                        </TableCell>
+                        <TableCell className="text-gray-600 text-sm">
+                          {u.signupDate ?? "—"}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -319,15 +245,7 @@ export function AdminDashboard() {
       </main>
 
       <footer className="text-center text-xs text-gray-400 py-6 mt-8 border-t border-gray-200">
-        © {new Date().getFullYear()} Welkee Admin Panel. Built with{" "}
-        <a
-          href={`https://caffeine.ai?utm_source=caffeine-footer&utm_medium=referral&utm_content=${encodeURIComponent(window.location.hostname)}`}
-          className="underline hover:text-gray-600"
-          target="_blank"
-          rel="noreferrer"
-        >
-          caffeine.ai
-        </a>
+        © {new Date().getFullYear()} Welkee Admin Panel.
       </footer>
     </div>
   );

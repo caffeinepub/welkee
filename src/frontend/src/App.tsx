@@ -6,7 +6,6 @@ import { Toaster } from "./components/ui/sonner";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { CityProvider } from "./context/CityContext";
 import { CompareProvider } from "./context/CompareContext";
-import { LeadsProvider } from "./context/LeadsContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AboutPage } from "./pages/AboutPage";
 import { AdminPage } from "./pages/AdminPage";
@@ -85,13 +84,11 @@ export default function App() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <CityProvider>
-          <LeadsProvider>
-            <CompareProvider>
-              <AuthProvider>
-                <AppShell />
-              </AuthProvider>
-            </CompareProvider>
-          </LeadsProvider>
+          <CompareProvider>
+            <AuthProvider>
+              <AppShell />
+            </AuthProvider>
+          </CompareProvider>
         </CityProvider>
       </ThemeProvider>
     </QueryClientProvider>
