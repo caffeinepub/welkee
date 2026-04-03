@@ -28,94 +28,87 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a1a] shadow-lg border-b border-yellow-900/30">
-      <div className="max-w-7xl mx-auto px-4 h-20 flex items-center gap-3">
-        {/* LEFT: Gold Circle Logo */}
+      <div className="max-w-7xl mx-auto px-4 h-24 flex items-center gap-3">
+        {/* LEFT: Large Gold Medallion Emblem with Lion Logo inside */}
         <button
           type="button"
           onClick={() => onNavigate("home")}
-          className="flex items-center shrink-0 hover:opacity-90 transition-opacity"
+          className="flex items-center gap-4 shrink-0 hover:opacity-90 transition-opacity"
           aria-label="Go to homepage"
           data-ocid="header.link"
         >
+          {/* Gold Circular Medallion Frame with Lion inside */}
           <div
             style={{
               position: "relative",
-              width: "72px",
-              height: "72px",
+              width: "100px",
+              height: "100px",
               borderRadius: "50%",
-              overflow: "hidden",
-              background: "white",
               flexShrink: 0,
-              boxShadow: "0 0 0 3px #FFD700, 0 0 16px 4px rgba(255,215,0,0.45)",
             }}
           >
-            {/* Gold circle frame as background */}
-            <img
-              src="/assets/generated/welkee-gold-circle-frame-transparent.dim_300x300.png"
-              alt=""
+            {/* Clean white circular background behind the lion */}
+            <div
               style={{
                 position: "absolute",
-                inset: 0,
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                zIndex: 2,
+                inset: "14%",
+                borderRadius: "50%",
+                background: "#ffffff",
+                zIndex: 1,
               }}
             />
-            {/* Lion logo inside */}
+
+            {/* Lion logo inside — on white background, no black boxes */}
             <img
-              src="/assets/generated/welkee-lion-logo.png"
-              alt="Welkee Lion Logo"
+              src="/assets/generated/welkee-lion-clean-white.dim_400x400.png"
+              alt="Welkee Lion"
               style={{
                 position: "absolute",
                 inset: "14%",
                 width: "72%",
                 height: "72%",
+                objectFit: "cover",
+                borderRadius: "50%",
+                zIndex: 2,
+              }}
+            />
+
+            {/* Gold medallion frame ring overlay on top */}
+            <img
+              src="/assets/generated/welkee-gold-medallion-v2-transparent.dim_500x500.png"
+              alt=""
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
                 objectFit: "contain",
                 zIndex: 3,
+                pointerEvents: "none",
               }}
             />
           </div>
+
+          {/* Compact WELKEE brand name ONLY — no tagline */}
+          <span
+            style={{
+              color: "#FFD700",
+              fontFamily: "'Inter', 'Roboto', sans-serif",
+              fontWeight: 900,
+              fontSize: "clamp(1.6rem, 3vw, 2.2rem)",
+              letterSpacing: "0.15em",
+              textShadow: "0 1px 8px rgba(255,215,0,0.25)",
+              lineHeight: 1,
+              userSelect: "none",
+            }}
+          >
+            WELKEE
+          </span>
         </button>
 
-        {/* CENTER: Site Title */}
-        <div className="flex-1 flex justify-center">
-          <button
-            type="button"
-            onClick={() => onNavigate("home")}
-            className="text-center hover:opacity-90 transition-opacity"
-            data-ocid="header.link"
-          >
-            <h1
-              style={{
-                color: "#FFD700",
-                fontFamily: "'Inter', 'Roboto', sans-serif",
-                fontWeight: 900,
-                fontSize: "clamp(1rem, 2.2vw, 1.5rem)",
-                lineHeight: 1.15,
-                textShadow: "0 1px 8px rgba(255,215,0,0.25)",
-                margin: 0,
-                textAlign: "center",
-              }}
-            >
-              Welkee: Drive Your Dreams.
-            </h1>
-            <p
-              style={{
-                color: "#FFD700",
-                opacity: 0.75,
-                fontFamily: "'Inter', 'Roboto', sans-serif",
-                fontWeight: 500,
-                fontSize: "clamp(0.6rem, 1.2vw, 0.8rem)",
-                margin: 0,
-                textAlign: "center",
-                letterSpacing: "0.02em",
-              }}
-            >
-              India's Most Trusted Hub for Real Bikes &amp; Scooters
-            </p>
-          </button>
-        </div>
+        {/* SPACER */}
+        <div className="flex-1" />
 
         {/* City Selector */}
         <select
