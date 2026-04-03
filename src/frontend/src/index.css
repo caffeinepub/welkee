@@ -63,21 +63,18 @@
   }
   body {
     @apply text-foreground;
-    background-image: url("/assets/6c393cb3-1655-4440-b7d7-67b17341316a-019d520a-678c-75de-8b7b-1e759fbffcf8.jpeg") !important;
-    background-attachment: fixed !important;
-    background-size: cover !important;
-    background-position: center !important;
-    background-repeat: no-repeat !important;
+    background-image: none !important;
+    background-attachment: unset !important;
+    background-size: unset !important;
+    background-position: unset !important;
+    background-repeat: unset !important;
+    background-color: #0a0a1a !important;
     position: relative;
   }
-  /* 60% black overlay so golden text is readable */
+  /* Remove the overlay — no background image, no overlay needed */
   body::before {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.6);
-    z-index: 0;
-    pointer-events: none;
+    display: none !important;
+    content: none !important;
   }
   #root {
     position: relative;
@@ -126,8 +123,7 @@
     color: #ffd700 !important;
   }
 
-  /* ===== SEMI-TRANSPARENT VEHICLE CARDS ===== */
-  /* Overrides the gray-900/80 backdrop so the brick wall shows through */
+  /* ===== VEHICLE CARDS — solid dark background since no background image ===== */
   [data-ocid="vehicles.item.1"] > div,
   [data-ocid="vehicles.item.2"] > div,
   [data-ocid="vehicles.item.3"] > div,
@@ -140,7 +136,7 @@
   [data-ocid="home.item.4"] > div,
   [data-ocid="home.item.5"] > div,
   [data-ocid="home.item.6"] > div {
-    background-color: rgba(0, 0, 0, 0.45) !important;
+    background-color: rgba(10, 10, 40, 0.85) !important;
     backdrop-filter: blur(6px) !important;
   }
 }
