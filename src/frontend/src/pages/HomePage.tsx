@@ -2,6 +2,7 @@ import { useState } from "react";
 import { EMIWidget } from "../components/EMIWidget";
 import { VehicleCard } from "../components/VehicleCard";
 import { VehicleDetailModal } from "../components/VehicleDetailModal";
+import { useAuth } from "../context/AuthContext";
 import { bikes, scooters, vehicles } from "../data/vehicleData";
 import type { Vehicle } from "../data/vehicleData";
 
@@ -10,6 +11,7 @@ interface HomePageProps {
 }
 
 export function HomePage({ onNavigate }: HomePageProps) {
+  const { isSuperAdmin } = useAuth();
   const [search, setSearch] = useState("");
   const [detailVehicle, setDetailVehicle] = useState<Vehicle | null>(null);
   const [emiOpen, setEmiOpen] = useState(false);
@@ -27,11 +29,14 @@ export function HomePage({ onNavigate }: HomePageProps) {
   const featuredScooters = scooters.slice(0, 3);
 
   return (
-    <main className="bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <main className="min-h-screen" data-ocid="home.page">
       {/* Page Header */}
-      <section className="bg-[#004085] py-10 px-4" data-ocid="home.section">
+      <section
+        className="bg-[#004085]/90 backdrop-blur-sm py-10 px-4"
+        data-ocid="home.section"
+      >
         <div className="max-w-5xl mx-auto text-center">
-          <h1 className="text-3xl md:text-4xl font-extrabold text-white mb-2 leading-tight">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-[#FFD700] mb-2 leading-tight">
             Welkee: Drive Your Dreams.{" "}
             <span className="text-[#FF8225]">
               India&apos;s Most Trusted Hub for Real Bikes &amp; Scooters.
@@ -44,21 +49,21 @@ export function HomePage({ onNavigate }: HomePageProps) {
 
           {/* Search bar */}
           <div className="relative max-w-xl mx-auto">
-            <div className="flex items-center bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden">
-              <span className="pl-4 text-gray-400 text-xl">🔍</span>
+            <div className="flex items-center bg-white/10 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-white/20">
+              <span className="pl-4 text-gray-300 text-xl">🔍</span>
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search bikes, scooters, brands..."
-                className="flex-1 px-3 py-3.5 text-gray-900 dark:text-white bg-transparent text-sm focus:outline-none"
+                className="flex-1 px-3 py-3.5 text-white bg-transparent text-sm focus:outline-none placeholder:text-gray-300"
                 data-ocid="home.search_input"
               />
               {search && (
                 <button
                   type="button"
                   onClick={() => setSearch("")}
-                  className="pr-4 text-gray-400 hover:text-gray-600"
+                  className="pr-4 text-gray-300 hover:text-white"
                 >
                   ✕
                 </button>
@@ -66,7 +71,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
             </div>
             {/* Search dropdown */}
             {searchResults.length > 0 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 z-30 max-h-64 overflow-y-auto">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-gray-900/95 backdrop-blur-sm rounded-xl shadow-xl border border-yellow-500/20 z-30 max-h-64 overflow-y-auto">
                 {searchResults.map((v) => (
                   <button
                     key={v.id}
@@ -75,10 +80,10 @@ export function HomePage({ onNavigate }: HomePageProps) {
                       setDetailVehicle(v);
                       setSearch("");
                     }}
-                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-blue-50 dark:hover:bg-gray-700 text-left border-b border-gray-50 dark:border-gray-700 last:border-0"
+                    className="w-full flex items-center gap-3 px-4 py-3 hover:bg-yellow-500/10 text-left border-b border-gray-700 last:border-0"
                     data-ocid="home.link"
                   >
-                    <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-600 flex-shrink-0">
+                    <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-700 flex-shrink-0">
                       <img
                         src={v.image}
                         alt={v.name}
@@ -86,10 +91,10 @@ export function HomePage({ onNavigate }: HomePageProps) {
                       />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                      <p className="text-sm font-semibold text-[#FFD700]">
                         {v.name}
                       </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-400">
                         {v.brand} • ₹{v.priceMin.toFixed(2)}L
                       </p>
                     </div>
@@ -98,7 +103,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
               </div>
             )}
             {search.trim().length >= 2 && searchResults.length === 0 && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 z-30 p-4 text-sm text-gray-500 dark:text-gray-400 text-center">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-gray-900/95 backdrop-blur-sm rounded-xl shadow-xl border border-gray-700 z-30 p-4 text-sm text-gray-400 text-center">
                 No vehicles found for &quot;{search}&quot;
               </div>
             )}
@@ -111,13 +116,13 @@ export function HomePage({ onNavigate }: HomePageProps) {
         <button
           type="button"
           onClick={() => setEmiOpen((o) => !o)}
-          className="w-full flex items-center justify-between px-5 py-4 bg-white dark:bg-gray-800 rounded-2xl shadow border border-gray-100 dark:border-gray-700 hover:border-[#FF8225] transition-colors group"
+          className="w-full flex items-center justify-between px-5 py-4 bg-black/50 backdrop-blur-sm rounded-2xl shadow border border-yellow-500/30 hover:border-[#FF8225] transition-colors group"
           data-ocid="emi.toggle"
         >
-          <span className="flex items-center gap-3 font-bold text-gray-900 dark:text-white">
+          <span className="flex items-center gap-3 font-bold text-[#FFD700]">
             <span className="text-2xl">🧮</span>
             <span>EMI Calculator</span>
-            <span className="text-xs font-normal text-gray-500 dark:text-gray-400">
+            <span className="text-xs font-normal text-gray-400">
               — Calculate your monthly payment
             </span>
           </span>
@@ -134,14 +139,14 @@ export function HomePage({ onNavigate }: HomePageProps) {
 
       {/* Featured Grid: 3 Bikes Left | 3 Scooters Right */}
       <section className="max-w-5xl mx-auto px-4 py-6" data-ocid="home.section">
-        <h2 className="text-2xl font-extrabold text-gray-900 dark:text-white mb-6">
+        <h2 className="text-2xl font-extrabold text-[#FFD700] mb-6">
           Featured Vehicles
         </h2>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Bikes — Left */}
           <div>
-            <h3 className="text-base font-bold text-[#004085] dark:text-blue-400 mb-4 flex items-center gap-2">
-              🏙️ Bikes
+            <h3 className="text-base font-bold text-[#FFD700] mb-4 flex items-center gap-2">
+              🏍️ Bikes
             </h3>
             <div className="space-y-4">
               {featuredBikes.map((v, i) => (
@@ -153,7 +158,7 @@ export function HomePage({ onNavigate }: HomePageProps) {
           </div>
           {/* Scooters — Right */}
           <div>
-            <h3 className="text-base font-bold text-[#004085] dark:text-blue-400 mb-4 flex items-center gap-2">
+            <h3 className="text-base font-bold text-[#FFD700] mb-4 flex items-center gap-2">
               🛵 Scooters
             </h3>
             <div className="space-y-4">
@@ -177,9 +182,12 @@ export function HomePage({ onNavigate }: HomePageProps) {
         >
           Browse All Vehicles →
         </button>
-        <p className="text-gray-400 dark:text-gray-500 text-sm mt-3">
-          20 real vehicles — 10 Bikes &amp; 10 Scooters
-        </p>
+        {/* Only visible to Super Admin */}
+        {isSuperAdmin && (
+          <p className="text-[#FFD700] text-sm mt-3 font-semibold">
+            50 real vehicles — 25 Bikes &amp; 25 Scooters
+          </p>
+        )}
       </div>
 
       {/* Detail modal */}

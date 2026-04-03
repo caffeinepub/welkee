@@ -55,12 +55,33 @@
   * {
     @apply border-border;
   }
+  html,
   body {
-    @apply bg-background text-foreground;
     font-family: "Inter", "Roboto", system-ui, sans-serif;
-  }
-  html {
     scroll-behavior: smooth;
+    min-height: 100%;
+  }
+  body {
+    @apply text-foreground;
+    background-image: url("/assets/6c393cb3-1655-4440-b7d7-67b17341316a-019d51e4-ee0f-7297-84b7-d1400808961a.jpeg");
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+  }
+  /* Subtle dark overlay to ensure gold text readability */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 5, 20, 0.72);
+    z-index: 0;
+    pointer-events: none;
+  }
+  #root {
+    position: relative;
+    z-index: 1;
   }
 }
 
@@ -89,5 +110,9 @@
   }
   .btn-outline-orange {
     @apply border border-[#FF8225] text-[#FF8225] hover:bg-[#FF8225] hover:text-white font-semibold py-2 px-4 rounded-lg transition-all duration-200;
+  }
+  /* Gold text utility */
+  .text-gold {
+    color: #ffd700;
   }
 }

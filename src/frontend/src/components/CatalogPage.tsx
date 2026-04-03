@@ -51,8 +51,8 @@ export function CatalogPage({
           </h1>
           <p className="text-gray-500 mt-1 text-sm">
             {activeTab === "new"
-              ? "Top 20 best-selling bikes in India"
-              : "Top 20 best-selling scooters in India"}
+              ? `Top ${STATIC_BIKES.length} best-selling bikes in India`
+              : `Top ${STATIC_SCOOTERS.length} best-selling scooters in India`}
           </p>
         </div>
 

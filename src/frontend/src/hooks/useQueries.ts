@@ -21,6 +21,7 @@ export interface Bike {
   price: PriceRange;
   photoId: string;
   mileage?: string;
+  buyUrl?: string;
 }
 
 export interface Brand {

@@ -56,18 +56,18 @@ export function VehicleCard({ vehicle, onViewDetail }: VehicleCardProps) {
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow border border-gray-100 dark:border-gray-700 flex flex-col overflow-hidden hover:shadow-lg transition-shadow">
+      <div className="bg-gray-900/80 backdrop-blur-sm rounded-2xl shadow-lg border border-yellow-500/20 flex flex-col overflow-hidden hover:shadow-yellow-500/10 hover:shadow-xl transition-shadow hover:border-yellow-500/40">
         {/* Image */}
         <button
           type="button"
           onClick={() => onViewDetail(vehicle)}
-          className="relative overflow-hidden bg-gray-100 dark:bg-gray-700 w-full text-left"
+          className="relative overflow-hidden bg-gray-800 w-full text-left"
           style={{ height: 200 }}
           aria-label={`View details for ${vehicle.name}`}
         >
           {imgError ? (
-            <div className="w-full h-full flex items-center justify-center text-5xl bg-gradient-to-br from-blue-50 to-blue-100 dark:from-gray-700 dark:to-gray-600">
-              {vehicle.type === "bike" ? "🏙️" : "🛵"}
+            <div className="w-full h-full flex items-center justify-center text-5xl bg-gradient-to-br from-gray-800 to-gray-700">
+              {vehicle.type === "bike" ? "🏍️" : "🛵"}
             </div>
           ) : (
             <img
@@ -92,8 +92,8 @@ export function VehicleCard({ vehicle, onViewDetail }: VehicleCardProps) {
             <span
               className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
                 vehicle.type === "bike"
-                  ? "bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300"
-                  : "bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300"
+                  ? "bg-blue-900/80 text-blue-300"
+                  : "bg-purple-900/80 text-purple-300"
               }`}
             >
               {vehicle.type === "bike" ? "Bike" : "Scooter"}
@@ -106,17 +106,17 @@ export function VehicleCard({ vehicle, onViewDetail }: VehicleCardProps) {
           <button
             type="button"
             onClick={() => onViewDetail(vehicle)}
-            className="text-left font-bold text-gray-900 dark:text-white text-base hover:text-[#004085] dark:hover:text-blue-400 transition-colors mb-2"
+            className="text-left font-bold text-[#FFD700] text-base hover:text-yellow-300 transition-colors mb-2"
           >
             {vehicle.name}
           </button>
 
           <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 mb-3 text-xs">
-            <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+            <div className="flex items-center gap-1 text-gray-400">
               <span aria-hidden="true">⚙️</span>
               <span>{vehicle.cc}</span>
             </div>
-            <div className="flex items-center gap-1 text-gray-600 dark:text-gray-400">
+            <div className="flex items-center gap-1 text-gray-400">
               <span aria-hidden="true">{vehicle.isElectric ? "🔋" : "⛽"}</span>
               <span>{vehicle.mileage}</span>
             </div>
@@ -132,7 +132,7 @@ export function VehicleCard({ vehicle, onViewDetail }: VehicleCardProps) {
                 className={`w-3.5 h-3.5 ${
                   i <= Math.floor(vehicle.rating)
                     ? "text-yellow-400"
-                    : "text-gray-300"
+                    : "text-gray-600"
                 }`}
                 fill="currentColor"
                 viewBox="0 0 20 20"
@@ -141,19 +141,19 @@ export function VehicleCard({ vehicle, onViewDetail }: VehicleCardProps) {
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
               </svg>
             ))}
-            <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
+            <span className="text-xs text-gray-500 ml-1">
               {vehicle.rating} ({vehicle.reviews.toLocaleString()})
             </span>
           </div>
 
-          <div className="text-[#FF8225] font-extrabold text-base mb-1">
+          <div className="text-[#FFD700] font-extrabold text-base mb-1">
             ₹{vehicle.priceMin.toFixed(2)}L &ndash; ₹
             {vehicle.priceMax.toFixed(2)}L
           </div>
 
-          <div className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+          <div className="text-xs text-gray-400 mb-3">
             On-road {selectedCity}:{" "}
-            <span className="font-semibold text-gray-700 dark:text-gray-300">
+            <span className="font-semibold text-[#FFD700]">
               ₹{onRoadPrice}L
             </span>
           </div>
@@ -171,7 +171,7 @@ export function VehicleCard({ vehicle, onViewDetail }: VehicleCardProps) {
             <button
               type="button"
               onClick={handleWhatsAppClick}
-              className="w-full flex items-center justify-center gap-2 text-xs font-semibold py-2 px-3 rounded-lg bg-green-500 hover:bg-green-600 text-white transition-colors"
+              className="w-full flex items-center justify-center gap-2 text-xs font-semibold py-2 px-3 rounded-lg bg-green-600 hover:bg-green-700 text-white transition-colors"
               data-ocid="vehicle.secondary_button"
             >
               <svg
