@@ -29,48 +29,24 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 shadow-md border-b border-gray-200 dark:border-gray-700">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-3">
-        {/* Logo with larger circular frame + WELKEE text */}
+        {/* Logo: Lion image directly (no circle, no glow) + WELKEE text */}
         <button
           type="button"
           onClick={() => onNavigate("home")}
-          className="flex items-center gap-4 hover:opacity-90 transition-opacity shrink-0"
+          className="flex items-center gap-3 hover:opacity-90 transition-opacity shrink-0"
           data-ocid="header.link"
         >
-          {/* Larger Circular logo frame with golden radiance/glow */}
-          <div
-            className="rounded-full overflow-hidden flex items-center justify-center shrink-0"
+          {/* Lion logo — large, no circular frame, no glow, direct on background */}
+          <img
+            src="/assets/generated/welkee-lion-logo.png"
+            alt="Welkee Lion Logo"
             style={{
-              width: "56px",
-              height: "56px",
-              border: "3px solid #FFD700",
-              boxShadow:
-                "0 0 0 2px rgba(255,215,0,0.4), 0 0 16px 4px rgba(255,215,0,0.55), 0 0 32px 8px rgba(255,180,0,0.25)",
-              background: "#000",
-              padding: "2px",
+              height: "52px",
+              width: "auto",
+              objectFit: "contain",
+              display: "block",
             }}
-          >
-            <img
-              src="/assets/generated/welkee-logo-hd-transparent.dim_400x400.png"
-              alt="Welkee Logo"
-              style={{
-                width: "100%",
-                height: "100%",
-                objectFit: "cover",
-                borderRadius: "50%",
-              }}
-            />
-          </div>
-          {/* WELKEE text — shifted right for spacing */}
-          <span
-            className="text-2xl font-extrabold tracking-wider"
-            style={{
-              color: "#FFD700",
-              marginLeft: "4px",
-              letterSpacing: "0.12em",
-            }}
-          >
-            WELKEE
-          </span>
+          />
         </button>
 
         {/* Spacer */}
