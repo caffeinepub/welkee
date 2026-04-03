@@ -63,25 +63,35 @@
   }
   body {
     @apply text-foreground;
-    background-image: url("/assets/6c393cb3-1655-4440-b7d7-67b17341316a-019d51e4-ee0f-7297-84b7-d1400808961a.jpeg");
-    background-attachment: fixed;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    background-image: url("/assets/6c393cb3-1655-4440-b7d7-67b17341316a-019d520a-678c-75de-8b7b-1e759fbffcf8.jpeg") !important;
+    background-attachment: fixed !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
     position: relative;
   }
-  /* Subtle dark overlay to ensure gold text readability */
+  /* 60% black overlay so golden text is readable */
   body::before {
     content: "";
     position: fixed;
     inset: 0;
-    background: rgba(5, 5, 20, 0.72);
+    background: rgba(0, 0, 0, 0.6);
     z-index: 0;
     pointer-events: none;
   }
   #root {
     position: relative;
     z-index: 1;
+  }
+
+  /* ===== ROYAL GOLD OVERRIDE — force gold on all headings everywhere ===== */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: #ffd700 !important;
   }
 }
 
@@ -113,6 +123,24 @@
   }
   /* Gold text utility */
   .text-gold {
-    color: #ffd700;
+    color: #ffd700 !important;
+  }
+
+  /* ===== SEMI-TRANSPARENT VEHICLE CARDS ===== */
+  /* Overrides the gray-900/80 backdrop so the brick wall shows through */
+  [data-ocid="vehicles.item.1"] > div,
+  [data-ocid="vehicles.item.2"] > div,
+  [data-ocid="vehicles.item.3"] > div,
+  [data-ocid="vehicles.item.4"] > div,
+  [data-ocid="vehicles.item.5"] > div,
+  [data-ocid="vehicles.item.6"] > div,
+  [data-ocid="home.item.1"] > div,
+  [data-ocid="home.item.2"] > div,
+  [data-ocid="home.item.3"] > div,
+  [data-ocid="home.item.4"] > div,
+  [data-ocid="home.item.5"] > div,
+  [data-ocid="home.item.6"] > div {
+    background-color: rgba(0, 0, 0, 0.45) !important;
+    backdrop-filter: blur(6px) !important;
   }
 }

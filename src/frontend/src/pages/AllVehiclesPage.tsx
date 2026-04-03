@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { VehicleCard } from "../components/VehicleCard";
 import { VehicleDetailModal } from "../components/VehicleDetailModal";
+import { useAuth } from "../context/AuthContext";
 import { vehicles } from "../data/vehicleData";
 import type { Vehicle } from "../data/vehicleData";
 
 export function AllVehiclesPage() {
+  const { isSuperAdmin } = useAuth();
   const [tab, setTab] = useState<"all" | "bike" | "scooter">("all");
   const [search, setSearch] = useState("");
   const [detailVehicle, setDetailVehicle] = useState<Vehicle | null>(null);
@@ -48,25 +50,39 @@ export function AllVehiclesPage() {
               </button>
             ))}
           </div>
+
+          {/* Search bar — identical structure to HomePage */}
           <div className="flex-1 relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-              🔍
-            </span>
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by name or brand..."
-              className="w-full pl-9 pr-3 py-2.5 border border-yellow-500/30 rounded-xl text-sm bg-black/40 backdrop-blur-sm text-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-[#FFD700]"
-              data-ocid="vehicles.search_input"
-            />
+            <div className="flex items-center bg-white/10 backdrop-blur-sm rounded-xl shadow-lg overflow-hidden border border-white/20">
+              <span className="pl-4 text-gray-300 text-xl">🔍</span>
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by name or brand..."
+                className="flex-1 px-3 py-3.5 text-white bg-transparent text-sm focus:outline-none placeholder:text-gray-300"
+                data-ocid="vehicles.search_input"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch("")}
+                  className="pr-4 text-gray-300 hover:text-white"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
-        <p className="text-sm text-gray-400 mb-4">
-          Showing <strong className="text-[#FFD700]">{filtered.length}</strong>{" "}
-          vehicle{filtered.length !== 1 ? "s" : ""}
-        </p>
+        {isSuperAdmin && (
+          <p className="text-sm text-gray-400 mb-4">
+            Showing{" "}
+            <strong className="text-[#FFD700]">{filtered.length}</strong>{" "}
+            vehicle{filtered.length !== 1 ? "s" : ""}
+          </p>
+        )}
 
         {filtered.length === 0 ? (
           <div className="text-center py-20" data-ocid="vehicles.empty_state">

@@ -53,22 +53,22 @@ export function AllBikesPage({
   });
 
   return (
-    <div className="min-h-screen bg-welkee-gray">
+    <div className="min-h-screen bg-transparent">
       <div className="max-w-7xl mx-auto px-4 py-8">
         <button
           type="button"
           onClick={onBack}
-          className="flex items-center gap-2 text-welkee-blue font-medium mb-6 hover:underline"
+          className="flex items-center gap-2 text-[#FFD700] font-medium mb-6 hover:underline"
         >
           <ArrowLeft size={18} /> Back to Home
         </button>
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-welkee-text">
+            <h1 className="text-3xl font-bold text-[#FFD700]">
               All Bikes & Scooters
             </h1>
-            <p className="text-gray-500 mt-1">
+            <p className="text-[#FFD700] mt-1">
               {filtered.length} vehicles found
             </p>
           </div>
@@ -84,13 +84,13 @@ export function AllBikesPage({
               placeholder="Search bikes..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-9 pr-4 py-2 border border-gray-200 rounded-full text-sm focus:outline-none focus:border-welkee-blue bg-white w-56"
+              className="pl-9 pr-4 py-2 border border-yellow-500/30 rounded-full text-sm focus:outline-none focus:border-[#FFD700] bg-black/40 text-white placeholder:text-gray-400 w-56"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
               >
                 <X size={14} />
               </button>
@@ -99,7 +99,7 @@ export function AllBikesPage({
         </div>
 
         {/* Category Tabs */}
-        <div className="flex bg-gray-100 rounded-full p-1 gap-0 w-fit mb-4">
+        <div className="flex bg-black/40 rounded-full p-1 gap-0 w-fit mb-4">
           {CATEGORY_TABS.map(({ key, label }) => (
             <button
               key={key}
@@ -107,8 +107,8 @@ export function AllBikesPage({
               onClick={() => setActiveCategory(key)}
               className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
                 activeCategory === key
-                  ? "bg-welkee-blue text-white shadow-sm"
-                  : "text-gray-600 hover:text-welkee-blue"
+                  ? "bg-[#FFD700] text-black shadow-sm"
+                  : "text-[#FFD700]/70 hover:text-[#FFD700]"
               }`}
             >
               {label}
@@ -127,8 +127,8 @@ export function AllBikesPage({
               }
               className={`px-3 py-1 rounded-full text-xs font-medium border transition-all ${
                 activeBrand === brand
-                  ? "bg-welkee-blue text-white border-welkee-blue"
-                  : "bg-white text-gray-600 border-gray-200 hover:border-welkee-blue hover:text-welkee-blue"
+                  ? "bg-[#FFD700] text-black border-[#FFD700]"
+                  : "bg-transparent text-[#FFD700]/70 border-yellow-500/40 hover:border-[#FFD700] hover:text-[#FFD700]"
               }`}
             >
               {brand}

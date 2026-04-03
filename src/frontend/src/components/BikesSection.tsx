@@ -52,16 +52,16 @@ export function BikesSection({
   const previewBikes = displayBikes.slice(0, 6);
 
   return (
-    <section className="py-10" data-ocid="bikes.section">
+    <section className="py-10 bg-transparent" data-ocid="bikes.section">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-3">
           <div className="flex items-center gap-3 flex-wrap">
-            <h2 className="text-2xl font-bold text-welkee-text">
+            <h2 className="text-2xl font-bold text-[#FFD700]">
               Explore New Bikes
             </h2>
             {activeBrand && (
               <span
-                className="flex items-center gap-1.5 bg-blue-50 text-welkee-blue text-xs font-semibold px-3 py-1.5 rounded-full border border-blue-100"
+                className="flex items-center gap-1.5 bg-yellow-500/10 text-[#FFD700] text-xs font-semibold px-3 py-1.5 rounded-full border border-yellow-500/30"
                 data-ocid="bikes.panel"
               >
                 Showing: {activeBrand} bikes
@@ -79,7 +79,7 @@ export function BikesSection({
           </div>
 
           <div
-            className="flex bg-gray-100 rounded-full p-1 gap-0"
+            className="flex bg-black/40 rounded-full p-1 gap-0"
             data-ocid="bikes.tab"
           >
             {Object.entries(TAB_LABELS).map(([key, label]) => (
@@ -89,8 +89,8 @@ export function BikesSection({
                 onClick={() => onCategoryChange(key)}
                 className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
                   activeCategory === key
-                    ? "bg-welkee-blue text-white shadow-sm"
-                    : "text-gray-600 hover:text-welkee-blue"
+                    ? "bg-[#FFD700] text-black shadow-sm"
+                    : "text-[#FFD700]/70 hover:text-[#FFD700]"
                 }`}
                 data-ocid="bikes.tab"
               >
@@ -131,7 +131,7 @@ export function BikesSection({
           <button
             type="button"
             onClick={onViewAllBikes}
-            className="border-2 border-welkee-blue text-welkee-blue font-semibold px-8 py-3 rounded-full hover:bg-welkee-blue hover:text-white transition-all"
+            className="border-2 border-[#FFD700] text-[#FFD700] font-semibold px-8 py-3 rounded-full hover:bg-[#FFD700] hover:text-black transition-all"
             data-ocid="bikes.button"
           >
             View All Bikes
