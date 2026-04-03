@@ -29,30 +29,46 @@ export function Header({ currentPage, onNavigate }: HeaderProps) {
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 shadow-md border-b border-gray-200 dark:border-gray-700">
       <div className="max-w-7xl mx-auto px-4 h-16 flex items-center gap-3">
-        {/* Logo with circular frame + WELKEE text */}
+        {/* Logo with larger circular frame + WELKEE text */}
         <button
           type="button"
           onClick={() => onNavigate("home")}
-          className="flex items-center gap-3 hover:opacity-80 transition-opacity shrink-0"
+          className="flex items-center gap-4 hover:opacity-90 transition-opacity shrink-0"
           data-ocid="header.link"
         >
-          {/* Circular logo frame */}
+          {/* Larger Circular logo frame with golden radiance/glow */}
           <div
-            className="w-10 h-10 rounded-full overflow-hidden border-2 flex items-center justify-center shrink-0"
+            className="rounded-full overflow-hidden flex items-center justify-center shrink-0"
             style={{
-              borderColor: "#FFD700",
-              boxShadow: "0 0 8px rgba(255,215,0,0.5)",
+              width: "56px",
+              height: "56px",
+              border: "3px solid #FFD700",
+              boxShadow:
+                "0 0 0 2px rgba(255,215,0,0.4), 0 0 16px 4px rgba(255,215,0,0.55), 0 0 32px 8px rgba(255,180,0,0.25)",
               background: "#000",
+              padding: "2px",
             }}
           >
             <img
-              src="/assets/generated/welkee-logo-circle-transparent.dim_200x200.png"
+              src="/assets/generated/welkee-logo-hd-transparent.dim_400x400.png"
               alt="Welkee Logo"
-              className="w-full h-full object-cover"
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                borderRadius: "50%",
+              }}
             />
           </div>
-          {/* WELKEE text */}
-          <span className="text-2xl font-extrabold tracking-wider text-[#004085] dark:text-blue-400">
+          {/* WELKEE text — shifted right for spacing */}
+          <span
+            className="text-2xl font-extrabold tracking-wider"
+            style={{
+              color: "#FFD700",
+              marginLeft: "4px",
+              letterSpacing: "0.12em",
+            }}
+          >
             WELKEE
           </span>
         </button>
